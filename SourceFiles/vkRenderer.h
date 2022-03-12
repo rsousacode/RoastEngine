@@ -22,20 +22,22 @@ public:
 
 
 private:
-    GLFWwindow *w;
+    GLFWwindow *w{};
 
     // vk components
-    VkInstance instance;
+    VkInstance instance{};
 
     struct {
         VkPhysicalDevice physicalDevice;
         VkDevice logicalDevice;
-    } mainDevice;
+    } mainDevice{};
 
-    VkQueue graphicsQueue;
+    VkQueue graphicsQueue{};
 
-    // vk functions
+    // Instance Support
     void createInstance();
+
+    // Devices Support
     void createPhysicalDevices();
     void createLogicalDevice();
 
@@ -49,17 +51,19 @@ private:
 
 
     // Validation layers
-    const std::vector<const char*> validationLayers = {
-            "VK_LAYER_KHRONOS_validation"
-    };
-
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
 #else
     const bool enableValidationLayers = true;
 #endif
-    bool checkValidationLayerSupport();
-};
 
+    const std::vector<const char*> validationLayers = {
+            "VK_LAYER_KHRONOS_validation"
+    };
+
+
+    bool checkValidationLayerSupport();
+    std::vector<const char *> getRequiredExtensions();
+};
 
 #endif //ROASTENGINE_VKRENDERER_H

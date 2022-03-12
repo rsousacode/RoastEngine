@@ -6,7 +6,18 @@
 #include <vector>
 #include "vkRenderer.h"
 
-// Initialization of the Renderer.
+
+
+vkRenderer::vkRenderer() {
+
+}
+
+vkRenderer::~vkRenderer() {
+
+}
+
+
+// Initialization of the window.
 int
 vkRenderer::init(GLFWwindow *newWindow) {
 
@@ -28,6 +39,11 @@ vkRenderer::init(GLFWwindow *newWindow) {
 // Create Vulkan Instance
 void
 vkRenderer::createInstance() {
+
+    if(enableValidationLayers && !checkValidationLayerSupport()) {
+        throw std::runtime_error("Validation layers requested, but not available.");
+    }
+
     VkApplicationInfo appInfo = {
             .sType                   = VK_STRUCTURE_TYPE_APPLICATION_INFO,
             .pApplicationName        = "RoastEngine",
@@ -39,19 +55,13 @@ vkRenderer::createInstance() {
 
     VkInstanceCreateInfo createInfo = {
             .sType                  = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-            .pApplicationInfo       = &appInfo
+            .pApplicationInfo       = &appInfo,
+            .enabledLayerCount      = static_cast<uint32_t>(validationLayers.size()),
+            .ppEnabledLayerNames    = validationLayers.data()
     };
 
     // Create list to hold instance extensions
-    std::vector<const char *> vkExtensions = std::vector<const char *>();
-
-    const char **glfwExtensions;
-    uint32_t glfwExtensionCount = 0;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-    for (size_t i = 0; i < glfwExtensionCount; ++i) {
-        vkExtensions.push_back(glfwExtensions[i]);
-    }
+    std::vector<const char *> vkExtensions = getRequiredExtensions();
 
     // Check instance extensions support
     if (!checkInstanceExtensionSupport(&vkExtensions)) {
@@ -73,14 +83,6 @@ vkRenderer::createInstance() {
     }
 }
 
-vkRenderer::vkRenderer() {
-
-}
-
-vkRenderer::~vkRenderer() {
-
-}
-
 // Check support for vulkan extensions.
 bool
 vkRenderer::checkInstanceExtensionSupport(std::vector<const char *> *checkExtensions) {
@@ -92,10 +94,7 @@ vkRenderer::checkInstanceExtensionSupport(std::vector<const char *> *checkExtens
 
     // check if given extensions are in list of available extensions
     for (const auto &checkExtension: *checkExtensions) {
-
-        bool hasExtension = extensionInList(extensions, checkExtension);
-
-        if (!hasExtension) return false;
+        if (!extensionInList(extensions, checkExtension)) return false;
     }
 
     return true;
@@ -211,12 +210,12 @@ vkRenderer::createLogicalDevice() {
     // Information to create logical device
     VkDeviceCreateInfo deviceCreateInfo = {
             .sType                      = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-            .queueCreateInfoCount       = 1,              // Number of Queue Create Infos
-            .pQueueCreateInfos          = &createInfo,      // List of queue create infos
-            .enabledLayerCount          = 0,                // Validation layers (deprecated in VK API 1.1+)
-            .enabledExtensionCount      = 0,             // Logical Device extensions
-            .ppEnabledExtensionNames    = nullptr,    // List of enabled logical device extensions
-            .pEnabledFeatures           = &deviceFeatures    // Physical Device Features the Logical device will be using
+            .queueCreateInfoCount       = 1,                // Number of Queue Create Infos
+            .pQueueCreateInfos          = &createInfo,        // List of queue create infos
+            .enabledLayerCount          = 0,                  // Validation layers (deprecated in VK API 1.1+)
+            .enabledExtensionCount      = 0,               // Logical Device extensions
+            .ppEnabledExtensionNames    = nullptr,      // List of enabled logical device extensions
+            .pEnabledFeatures           = &deviceFeatures     // Physical Device Features the Logical device will be using
     };
 
     // Create the logical device for the given physical device
@@ -234,7 +233,8 @@ vkRenderer::createLogicalDevice() {
     vkGetDeviceQueue(mainDevice.logicalDevice, indices.graphicsFamilyIndex, 0, &graphicsQueue);
 }
 
-bool vkRenderer::checkValidationLayerSupport() {
+bool
+vkRenderer::checkValidationLayerSupport() {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
     std::vector<VkLayerProperties> availableLayers(layerCount);
@@ -254,4 +254,19 @@ bool vkRenderer::checkValidationLayerSupport() {
         if(!layerFound) return false;
     }
     return true;
+}
+
+std::vector<const char*>
+vkRenderer::getRequiredExtensions() {
+    uint32_t glfwExtensionCount = 0;
+    const char** glfwExtensions;
+    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+    if (enableValidationLayers) {
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
+
+    return extensions;
 }
