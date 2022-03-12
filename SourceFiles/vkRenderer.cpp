@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <vector>
+#include <iostream>
 #include "vkRenderer.h"
 
 
@@ -24,7 +25,8 @@ vkRenderer::init(GLFWwindow *newWindow) {
     w = newWindow;
 
     try {
-        createInstance();
+        createInstance();           // Create Instance
+        setupDebugMessenger();      // Setup Validation Layer Messenger
         createPhysicalDevices();
         createLogicalDevice();
     }
@@ -116,8 +118,14 @@ vkRenderer::extensionInList(std::vector<VkExtensionProperties> &extensions, cons
 // Destroy Vulkan instance
 void
 vkRenderer::cleanup() {
+    if(enableValidationLayers) {
+        DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+    }
     vkDestroyDevice(mainDevice.logicalDevice, nullptr);
     vkDestroyInstance(instance, nullptr);
+    glfwDestroyWindow(w);
+    glfwTerminate();
+
 }
 
 // Enumerate Physical Devices
@@ -170,7 +178,8 @@ vkRenderer::getQueueFamilies(VkPhysicalDevice device) {
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
     std::vector<VkQueueFamilyProperties> queueFamilyList(queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyList.data());
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount,
+                                             queueFamilyList.data());
 
     // Go through each queue family and check if it has at least 1 of the required types of queue
     // First check if queue family has at least 1 queue in that family (could have no queues)
@@ -256,6 +265,17 @@ vkRenderer::checkValidationLayerSupport() {
     return true;
 }
 
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT messageType,
+        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+        void* pUserData) {
+
+    std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+
+    return VK_FALSE;
+}
+
 std::vector<const char*>
 vkRenderer::getRequiredExtensions() {
     uint32_t glfwExtensionCount = 0;
@@ -269,4 +289,42 @@ vkRenderer::getRequiredExtensions() {
     }
 
     return extensions;
+}
+
+void vkRenderer::setupDebugMessenger() {
+    if(!enableValidationLayers) return;
+
+    VkDebugUtilsMessengerCreateInfoEXT createInfo{
+            .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+            .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                    VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+            .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                    VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+            .pfnUserCallback = debugCallback,
+            .pUserData = nullptr // Optional
+    };
+
+    if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+        throw std::runtime_error("failed to set up debug messenger!");
+    }
+}
+
+VkResult
+vkRenderer::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+                                         const VkAllocationCallbacks *pAllocator,
+                                         VkDebugUtilsMessengerEXT *pDebugMessenger) {
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+    if (func != nullptr) {
+        return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+    } else {
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+}
+
+void vkRenderer::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
+                                               const VkAllocationCallbacks *pAllocator) {
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+    if (func != nullptr) {
+        func(instance, debugMessenger, pAllocator);
+    }
 }

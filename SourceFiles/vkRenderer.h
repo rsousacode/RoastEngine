@@ -24,8 +24,11 @@ public:
 private:
     GLFWwindow *w{};
 
-    // vk components
+    // Vulkan Instance
     VkInstance instance{};
+
+    // Debug Implementation (Validation Layers)
+    VkDebugUtilsMessengerEXT debugMessenger;
 
     struct {
         VkPhysicalDevice physicalDevice;
@@ -51,6 +54,8 @@ private:
 
 
     // Validation layers
+    // TODO: creation and clean handling
+
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
 #else
@@ -63,7 +68,18 @@ private:
 
 
     bool checkValidationLayerSupport();
+
     std::vector<const char *> getRequiredExtensions();
+
+    VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
+                                          const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                          const VkAllocationCallbacks* pAllocator,
+                                          VkDebugUtilsMessengerEXT* pDebugMessenger);
+
+    void DestroyDebugUtilsMessengerEXT(VkInstance instance,
+                                       VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
+
+    void setupDebugMessenger();
 };
 
 #endif //ROASTENGINE_VKRENDERER_H

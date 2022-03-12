@@ -35,9 +35,5 @@ int main() {
 
     vKRendererImplm.cleanup();
 
-    // Destroy window and stop
-    glfwDestroyWindow(rWindow);
-    glfwTerminate();
-
     return 0;
 }
