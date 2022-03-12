@@ -30,9 +30,9 @@ void
 vkRenderer::createInstance() {
     VkApplicationInfo appInfo = {
             .sType                   = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-            .pApplicationName        = "Roast Engine",
+            .pApplicationName        = "RoastEngine",
             .applicationVersion      = VK_MAKE_VERSION(1, 0, 0),
-            .pEngineName             = "No Engine",
+            .pEngineName             = "NoEngine",
             .engineVersion           = VK_MAKE_VERSION(1, 0, 0),
             .apiVersion              = VK_API_VERSION_1_3,
     };
