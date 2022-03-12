@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 #include "vulkan/vulkan.h"
 #include "Utilities.h"
+#include <vector>
 
 class vkRenderer {
 
@@ -35,10 +36,8 @@ private:
 
     // vk functions
     void createInstance();
-
-    void refreshPhysicalDevices();
-
-
+    void createPhysicalDevices();
+    void createLogicalDevice();
 
     // Extension Support
     bool checkInstanceExtensionSupport  (std::vector<const char*> *checkExtensions);
@@ -46,10 +45,20 @@ private:
 
     // Device Support
     bool deviceIsSuitable(VkPhysicalDevice device);
-
     QueueFamilyIndexes getQueueFamilies(VkPhysicalDevice device);
 
-    void createLogicalDevice();
+
+    // Validation layers
+    const std::vector<const char*> validationLayers = {
+            "VK_LAYER_KHRONOS_validation"
+    };
+
+#ifdef NDEBUG
+    const bool enableValidationLayers = false;
+#else
+    const bool enableValidationLayers = true;
+#endif
+    bool checkValidationLayerSupport();
 };
 
 

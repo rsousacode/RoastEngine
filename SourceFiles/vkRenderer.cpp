@@ -14,7 +14,7 @@ vkRenderer::init(GLFWwindow *newWindow) {
 
     try {
         createInstance();
-        refreshPhysicalDevices();
+        createPhysicalDevices();
         createLogicalDevice();
     }
     catch (const std::runtime_error &e) {
@@ -106,7 +106,7 @@ bool
 vkRenderer::extensionInList(std::vector<VkExtensionProperties> &extensions, const char *const &checkExtension) const {
     bool hasExtension = false;
     for (const auto &extension: extensions) {
-        if (strcmp(checkExtension, extension.extensionName) != 0) {
+        if (strcmp(checkExtension, extension.extensionName) == 0) {
             hasExtension = true;
             break;
         }
@@ -123,7 +123,7 @@ vkRenderer::cleanup() {
 
 // Enumerate Physical Devices
 void
-vkRenderer::refreshPhysicalDevices() {
+vkRenderer::createPhysicalDevices() {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
     // If no devices available, none support Vulkan
@@ -232,4 +232,26 @@ vkRenderer::createLogicalDevice() {
     // from given logical device of given queue family of given queue index (0 since only one queue)
     // assign Queue reference in given graphicsQueue
     vkGetDeviceQueue(mainDevice.logicalDevice, indices.graphicsFamilyIndex, 0, &graphicsQueue);
+}
+
+bool vkRenderer::checkValidationLayerSupport() {
+    uint32_t layerCount;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+    // check if all of the layers in validationLayers exist in available layers
+
+    for (const char* layerName : validationLayers) {
+        bool layerFound = false;
+        for (const auto &layerProperties : availableLayers) {
+            if (strcmp(layerName, layerProperties.layerName) == 0) {
+                layerFound = true;
+                break;
+            }
+        }
+
+        if(!layerFound) return false;
+    }
+    return true;
 }
