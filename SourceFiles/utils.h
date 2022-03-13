@@ -1,5 +1,10 @@
 #pragma once
 #include <cstdint>
+#include <vector>
+
+const std::vector<const char *> deviceExtensions ={
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
 
 // Indices of queues families if they exist at all
 struct
@@ -9,7 +14,7 @@ QueueFamilyIndexes {
 
     // check if queue families are valid
 
-    bool isValid() {
+    [[nodiscard]] bool isValid() const {
         return graphicsFamilyIndex >= 0 && presentationFamilyIndex >= 0;
     }
 };

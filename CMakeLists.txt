@@ -10,8 +10,8 @@ link_directories(/usr/local/lib)
 # Source Files
 add_executable(RoastEngine
         SourceFiles/main.cpp
-        SourceFiles/vkRenderer.cpp
-        SourceFiles/vkRenderer.h)
+        SourceFiles/vk_renderer/vkRenderer.cpp
+        SourceFiles/vk_renderer/vkRenderer.h)
 
 # Library Includes for Vulkan and other libraries
 include_directories(/usr/local/include/)

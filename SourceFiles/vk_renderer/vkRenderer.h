@@ -1,9 +1,13 @@
+//
+// Created by miracs91 on 12.03.2022.
+//
+
 #ifndef ROASTENGINE_VKRENDERER_H
 #define ROASTENGINE_VKRENDERER_H
 #define GLFW_INCLUDE_VULKAN
 #include "vulkan/vulkan.h"
 #include <GLFW/glfw3.h>
-#include "Utilities.h"
+#include "../utils.h"
 #include <vector>
 
 class vkRenderer {
@@ -32,6 +36,7 @@ private:
     } mainDevice{};
 
     VkQueue graphicsQueue{};
+    VkQueue presentationQueue{};
     VkSurfaceKHR surface{};
 
     // Instance Support
@@ -48,6 +53,7 @@ private:
 
     // Device Support
     bool deviceIsSuitable(VkPhysicalDevice device);
+    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     QueueFamilyIndexes getQueueFamilies(VkPhysicalDevice device);
 
 

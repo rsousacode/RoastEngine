@@ -5,6 +5,7 @@
 #include <iostream>
 #include "vulkan/vulkan.h"
 #include <GLFW/glfw3.h>
+#include <set>
 #include "vkRenderer.h"
 
 vkRenderer::vkRenderer() = default;
@@ -20,9 +21,9 @@ vkRenderer::init(GLFWwindow *newWindow) {
     try {
         createInstance();
         setupDebugMessenger();
+        createSurface();
         createPhysicalDevices();
         createLogicalDevice();
-        createSurface();
     }
     catch (const std::runtime_error &e) {
         printf("ERROR %s\n", e.what());
@@ -159,7 +160,10 @@ vkRenderer::deviceIsSuitable(VkPhysicalDevice device) {
      */
 
     QueueFamilyIndexes indexes = getQueueFamilies(device);
-    return indexes.isValid();
+
+    bool extensionsSupported = checkDeviceExtensionSupport(device);
+
+    return indexes.isValid() && extensionsSupported;
 }
 
 // Get all Queue Family Property info for the given device
@@ -197,7 +201,7 @@ vkRenderer::getQueueFamilies(VkPhysicalDevice device) {
         if (indices.isValid()) {
             break;
         }
-
+        
         i++;
 
     }
@@ -211,14 +215,23 @@ vkRenderer::createLogicalDevice() {
 
 
     float queuePriority = 1.;
-    // Queue the logical device needs to create and info to do so
-    VkDeviceQueueCreateInfo createInfo = {
-            .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-            .queueFamilyIndex = indices.graphicsFamilyIndex,
-            .queueCount = 1 ,                                       // Number of queues to create
-            .pQueuePriorities = &queuePriority                   // QueueFamily priority (1 = highest priority)
 
-    };
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+    std::set<uint32_t> queueFamilyIndexes = {indices.graphicsFamilyIndex, indices.presentationFamilyIndex};
+
+    for(uint32_t queueFamilyIndex : queueFamilyIndexes) {
+        // Queue the logical device needs to create and info to do so
+        VkDeviceQueueCreateInfo queueCreateInfo = {
+                .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                .queueFamilyIndex = queueFamilyIndex,
+                .queueCount = 1 ,                                       // Number of queues to create
+                .pQueuePriorities = &queuePriority                   // QueueFamily priority (1 = highest priority)
+
+        };
+
+        queueCreateInfos.push_back(queueCreateInfo);
+
+    }
 
     // Physical Device Features the Logical device will be using
     VkPhysicalDeviceFeatures deviceFeatures {};
@@ -226,11 +239,11 @@ vkRenderer::createLogicalDevice() {
     // Information to create logical device
     VkDeviceCreateInfo deviceCreateInfo = {
             .sType                      = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-            .queueCreateInfoCount       = 1,                // Number of Queue Create Infos
-            .pQueueCreateInfos          = &createInfo,        // List of queue create infos
+            .queueCreateInfoCount       = static_cast<uint32_t>(queueCreateInfos.size()),                // Number of Queue Create Infos
+            .pQueueCreateInfos          = queueCreateInfos.data(),                                          // List of queue create infos
             .enabledLayerCount          = 0,                  // Validation layers (deprecated in VK API 1.1+)
-            .enabledExtensionCount      = 0,               // Logical Device extensions
-            .ppEnabledExtensionNames    = nullptr,      // List of enabled logical device extensions
+            .enabledExtensionCount      = static_cast<uint32_t>(deviceExtensions.size()),               // Logical Device extensions
+            .ppEnabledExtensionNames    = deviceExtensions.data(),      // List of enabled logical device extensions
             .pEnabledFeatures           = &deviceFeatures     // Physical Device Features the Logical device will be using
     };
 
@@ -247,6 +260,7 @@ vkRenderer::createLogicalDevice() {
     // from given logical device of given queue family of given queue index (0 since only one queue)
     // assign Queue reference in given graphicsQueue
     vkGetDeviceQueue(mainDevice.logicalDevice, indices.graphicsFamilyIndex, 0, &graphicsQueue);
+    vkGetDeviceQueue(mainDevice.logicalDevice, indices.presentationFamilyIndex,0, &presentationQueue);
 }
 
 bool
@@ -347,4 +361,36 @@ vkRenderer::createSurface() {
     if(result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create a surface");
     }
+}
+
+bool
+vkRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+    uint32_t  extensionCount = 0;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    if(extensionCount == 0) {
+        return false;
+    }
+
+    std::vector<VkExtensionProperties> extensionProperties (extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, extensionProperties.data());
+
+    bool hasExtension = false;
+
+    for(const auto &deviceExtension : deviceExtensions) {
+
+        for(const auto &extension : extensionProperties) {
+            if (strcmp(deviceExtension, extension.extensionName) == 0) {
+                hasExtension = true;
+                break;
+            }
+        }
+
+        if(!hasExtension) {
+            return false;
+        }
+    }
+
+    return hasExtension;
+
 }
