@@ -160,7 +160,14 @@ vkRenderer::deviceIsSuitable(VkPhysicalDevice device) {
 
     bool extensionsSupported = checkDeviceExtensionSupport(device);
 
-    return indexes.isValid() && extensionsSupported;
+    bool swapChainValid = false;
+
+    if(extensionsSupported) {
+        SwapChainDetails swapChainDetails = getSwapChainDetails(device);
+        swapChainValid = !swapChainDetails.presentModeKhr.empty() && !swapChainDetails.surfaceFormatKhr.empty();
+    }
+
+    return indexes.isValid() && extensionsSupported && swapChainValid;
 }
 
 // Get all Queue Family Property info for the given device
@@ -392,4 +399,30 @@ vkRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device) {
 
     return hasExtension;
 
+}
+
+SwapChainDetails vkRenderer::getSwapChainDetails(VkPhysicalDevice device) {
+    SwapChainDetails details;
+
+    // Get surface capabilities for the given surface on the physical device
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.surfaceCapabilitiesKhr);
+    uint32_t  formatCount = 0;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+
+
+    if(formatCount != 0) {
+        details.surfaceFormatKhr.resize(formatCount);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.surfaceFormatKhr.data());
+    }
+    // Get surface present mode
+
+    uint32_t  presentationCount = 0;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentationCount, nullptr);
+
+    if(presentationCount != 0) {
+        details.presentModeKhr.resize(presentationCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentationCount, details.presentModeKhr.data());
+    }
+
+    return details;
 }

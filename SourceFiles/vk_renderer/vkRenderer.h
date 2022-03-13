@@ -55,6 +55,7 @@ private:
     bool deviceIsSuitable(VkPhysicalDevice device);
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     QueueFamilyIndexes getQueueFamilies(VkPhysicalDevice device);
+    SwapChainDetails getSwapChainDetails(VkPhysicalDevice device);
 
 
     // Validation layers
