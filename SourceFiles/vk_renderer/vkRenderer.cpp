@@ -15,9 +15,7 @@ vkRenderer::~vkRenderer() = default;
 // Initialization of the window.
 int
 vkRenderer::init(GLFWwindow *newWindow) {
-
     w = newWindow;
-
     try {
         createInstance();
         setupDebugMessenger();
@@ -36,7 +34,6 @@ vkRenderer::init(GLFWwindow *newWindow) {
 // Create Vulkan Instance
 void
 vkRenderer::createInstance() {
-
     if(enableValidationLayers && !checkValidationLayerSupport()) {
         throw std::runtime_error("Validation layers requested, but not available.");
     }
@@ -239,12 +236,13 @@ vkRenderer::createLogicalDevice() {
     // Information to create logical device
     VkDeviceCreateInfo deviceCreateInfo = {
             .sType                      = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-            .queueCreateInfoCount       = static_cast<uint32_t>(queueCreateInfos.size()),                // Number of Queue Create Infos
-            .pQueueCreateInfos          = queueCreateInfos.data(),                                          // List of queue create infos
-            .enabledLayerCount          = 0,                  // Validation layers (deprecated in VK API 1.1+)
-            .enabledExtensionCount      = static_cast<uint32_t>(deviceExtensions.size()),               // Logical Device extensions
-            .ppEnabledExtensionNames    = deviceExtensions.data(),      // List of enabled logical device extensions
-            .pEnabledFeatures           = &deviceFeatures     // Physical Device Features the Logical device will be using
+            .queueCreateInfoCount       = static_cast<uint32_t>(queueCreateInfos.size()), // Number of Queue Create Infos
+            .pQueueCreateInfos          = queueCreateInfos.data(),                          // List of queue create infos
+            .enabledLayerCount          = 0,
+            .enabledExtensionCount      = static_cast<uint32_t>(deviceExtensions.size()),// Logical Device extensions
+            .ppEnabledExtensionNames    = deviceExtensions.data(),                    // Enabled logical device extensions
+            .pEnabledFeatures           = &deviceFeatures                                    // Physical Device Features the logical
+                                                                                                             //  device will be using
     };
 
     // Create the logical device for the given physical device
@@ -373,7 +371,8 @@ vkRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device) {
     }
 
     std::vector<VkExtensionProperties> extensionProperties (extensionCount);
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, extensionProperties.data());
+    vkEnumerateDeviceExtensionProperties(device, nullptr,
+                                         &extensionCount, extensionProperties.data());
 
     bool hasExtension = false;
 
