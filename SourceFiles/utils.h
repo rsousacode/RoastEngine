@@ -25,3 +25,9 @@ SwapChainDetails {
     std::vector<VkSurfaceFormatKHR> surfaceFormatKhr;    // Surface Image format, eg. RGBA and size of each color
     std::vector<VkPresentModeKHR> presentModeKhr;        // How images should be presented in the screen
 };
+
+struct
+SwapchainImage {
+    VkImage image;
+    VkImageView imageView;
+};

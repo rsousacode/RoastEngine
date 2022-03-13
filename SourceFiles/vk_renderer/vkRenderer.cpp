@@ -22,7 +22,7 @@ vkRenderer::init(GLFWwindow *newWindow) {
         createSurface();
         createPhysicalDevices();
         createLogicalDevice();
-        createSwapChain();
+        createSwapchain();
     }
     catch (const std::runtime_error &e) {
         printf("ERROR %s\n", e.what());
@@ -111,7 +111,8 @@ vkRenderer::extensionInList(std::vector<VkExtensionProperties> &extensions, cons
 // Destroy Vulkan instance
 void
 vkRenderer::cleanup() {
-    vkDestroySwapchainKHR(mainDevice.logicalDevice, swapChain, nullptr);
+    cleanupImages();
+    vkDestroySwapchainKHR(mainDevice.logicalDevice, swapchainKhr, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyDevice(mainDevice.logicalDevice, nullptr);
     if(enableValidationLayers) DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
@@ -119,6 +120,13 @@ vkRenderer::cleanup() {
     glfwDestroyWindow(w);
     glfwTerminate();
 
+}
+
+void
+vkRenderer::cleanupImages() {
+    for (auto image : swapChainImages) {
+        vkDestroyImageView(mainDevice.logicalDevice, image.imageView, nullptr);
+    }
 }
 
 // Enumerate Physical Devices
@@ -433,22 +441,22 @@ vkRenderer::getSwapChainDetails(VkPhysicalDevice device) {
 
 // Creates a Swap Chain
 void
-vkRenderer::createSwapChain() {
+vkRenderer::createSwapchain() {
     // Get swap chain details so we can pick best settings
-    SwapChainDetails swapChainDetails   = getSwapChainDetails(mainDevice.physicalDevice);
-    VkSurfaceFormatKHR surfaceFormat    = chooseBestSurfaceFormat(swapChainDetails.surfaceFormatKhr);
-    VkPresentModeKHR presentMode        = chooseBestPresentationMode(swapChainDetails.presentModeKhr);
-    VkExtent2D extent                   = chooseSwapExtent(swapChainDetails.surfaceCapabilities);
+    SwapChainDetails swapchainDetails   = getSwapChainDetails(mainDevice.physicalDevice);
+    VkSurfaceFormatKHR surfaceFormat    = chooseBestSurfaceFormat(swapchainDetails.surfaceFormatKhr);
+    VkPresentModeKHR presentMode        = chooseBestPresentationMode(swapchainDetails.presentModeKhr);
+    VkExtent2D extent                   = chooseSwapExtent(swapchainDetails.surfaceCapabilities);
 
     // Check many images in the swap chain. 1 More to allow triple buffering
 
-    uint32_t imageCount = swapChainDetails.surfaceCapabilities.minImageCount + 1;
+    uint32_t imageCount = swapchainDetails.surfaceCapabilities.minImageCount + 1;
 
     // If imageCount is higher than max, clamp to max
     // If 0, limitless
-    if(swapChainDetails.surfaceCapabilities.maxImageCount > 0 &&
-       swapChainDetails.surfaceCapabilities.maxImageCount < imageCount) {
-        imageCount = swapChainDetails.surfaceCapabilities.maxImageCount;
+    if(swapchainDetails.surfaceCapabilities.maxImageCount > 0 &&
+       swapchainDetails.surfaceCapabilities.maxImageCount < imageCount) {
+        imageCount = swapchainDetails.surfaceCapabilities.maxImageCount;
     }
 
     // Todo store indexes somewhere
@@ -467,7 +475,7 @@ vkRenderer::createSwapChain() {
             .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
             .queueFamilyIndexCount = 0,
             .pQueueFamilyIndices = nullptr,
-            .preTransform = swapChainDetails                       // Transform to perform on swap chain
+            .preTransform = swapchainDetails                       // Transform to perform on swap chain
                                             .surfaceCapabilities.currentTransform,
             .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, // Handling blending images with extern graphics (other windows)
             .presentMode = presentMode,                                         // Presentation mode
@@ -475,7 +483,7 @@ vkRenderer::createSwapChain() {
             .oldSwapchain = VK_NULL_HANDLE                                      // Link old one to quicly hand over responsabilities
     };
 
-    // If graphics and presentation families are different, then swapchain must let images be shared between families
+    // If graphics and presentation families are different, then swapchainKhr must let images be shared between families
     if(indexes.graphicsFamilyIndex != indexes.presentationFamilyIndex) {
         uint32_t queueFamilyIndexes[] = {
                 (uint32_t) indexes.graphicsFamilyIndex,
@@ -487,14 +495,33 @@ vkRenderer::createSwapChain() {
         swapchainCreateInfo.pQueueFamilyIndices = queueFamilyIndexes;       // Array of queues to share between
     }
 
-    auto result = vkCreateSwapchainKHR(mainDevice.logicalDevice, &swapchainCreateInfo, nullptr, &swapChain);
+    auto result = vkCreateSwapchainKHR(mainDevice.logicalDevice, &swapchainCreateInfo, nullptr, &swapchainKhr);
 
     if(result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create a Swapchain!");
     }
 
+    // Store for later reference
     swapChainImageFormat = surfaceFormat.format;
     swapChainExtent = extent;
+
+    // GetSwapChain Images
+    uint32_t swapChainImageCount;
+    vkGetSwapchainImagesKHR(mainDevice.logicalDevice, swapchainKhr, &swapChainImageCount, nullptr);
+    std::vector<VkImage> images(swapChainImageCount);
+    vkGetSwapchainImagesKHR(mainDevice.logicalDevice, swapchainKhr, &swapChainImageCount, images.data());
+
+    // Store image handling
+    for (VkImage image : images) {
+
+        SwapchainImage swapchainImage = {
+                .image = image,
+                .imageView = createImageView(image, swapChainImageFormat,
+                                             VK_IMAGE_ASPECT_COLOR_BIT)    // Aspect of the image we want to view
+        };
+
+        swapChainImages.push_back(swapchainImage);
+    }
 }
 
 
@@ -502,7 +529,8 @@ vkRenderer::createSwapChain() {
 // Format       :  VK_FORMAT_R8G8B8A8_UNORM
 // Alternative  :  VK_FORMAT_B8G8R8A8_UNORM
 // ColorSpace   :  VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
-VkSurfaceFormatKHR vkRenderer::chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats) {
+VkSurfaceFormatKHR
+vkRenderer::chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats) {
     if(formats.size() == 1 && formats[0].format == VK_FORMAT_UNDEFINED) {
         return {VK_FORMAT_R8G8B8A8_UNORM,VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
     }
@@ -516,7 +544,8 @@ VkSurfaceFormatKHR vkRenderer::chooseBestSurfaceFormat(const std::vector<VkSurfa
     return formats[0];
 }
 
-VkPresentModeKHR vkRenderer::chooseBestPresentationMode(const std::vector<VkPresentModeKHR> presentationModes) {
+VkPresentModeKHR
+vkRenderer::chooseBestPresentationMode(const std::vector<VkPresentModeKHR> presentationModes) {
     for (const auto &presentationMode : presentationModes) {
         if( presentationMode == VK_PRESENT_MODE_MAILBOX_KHR) {
             return presentationMode;
@@ -525,7 +554,8 @@ VkPresentModeKHR vkRenderer::chooseBestPresentationMode(const std::vector<VkPres
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkExtent2D vkRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities) {
+VkExtent2D
+vkRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities) {
     // If current extent is at numeric limits, then extent can vary. Otherwise is the size of the window
     if(surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         return surfaceCapabilities.currentExtent;
@@ -549,9 +579,35 @@ VkExtent2D vkRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceC
                 .height = newHeight
         };
 
-        // Make sure bounderies by clamping value
-
+        // Make sure boundaries by clamping value
         return newExtent;
 
     }
+}
+
+VkImageView
+vkRenderer::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
+    VkImageViewCreateInfo viewCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+            .image = image,                                                   // Image to create view for
+            .viewType = VK_IMAGE_VIEW_TYPE_2D,                      // Type of the image
+            .format = format,                                                // Format of image data
+            .components.r = VK_COMPONENT_SWIZZLE_IDENTITY,      // Allows remapping rgba components
+            .components.g = VK_COMPONENT_SWIZZLE_IDENTITY,
+            .components.b = VK_COMPONENT_SWIZZLE_IDENTITY,
+            .components.a = VK_COMPONENT_SWIZZLE_IDENTITY,
+            .subresourceRange.aspectMask = aspectFlags, // Which aspect of image to view
+                                                                                 // eg. COLOR_BIT for view color
+            .subresourceRange.baseMipLevel = 0,       // Start mipmap level to view from
+            .subresourceRange.levelCount = 1,           // Number of mipmap levels to view
+            .subresourceRange.baseArrayLayer = 0,   // Start array level to view from
+            .subresourceRange.layerCount = 1           // Number of array levels to view
+    };
+
+    VkImageView imageView;
+    VkResult result = vkCreateImageView(mainDevice.logicalDevice, &viewCreateInfo, nullptr, &imageView);
+    if(result != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create an Image view!");
+    }
+    return imageView;
 }

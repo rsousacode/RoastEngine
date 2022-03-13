@@ -26,10 +26,11 @@ private:
         VkDevice            logicalDevice;
     } mainDevice{};
 
-    VkQueue         graphicsQueue{};
-    VkQueue         presentationQueue{};
-    VkSurfaceKHR    surface{};
-    VkSwapchainKHR  swapChain{};
+    VkQueue                     graphicsQueue{};
+    VkQueue                     presentationQueue{};
+    VkSurfaceKHR                surface{};
+    VkSwapchainKHR              swapchainKhr{};
+    std::vector<SwapchainImage> swapChainImages;
 
     VkFormat        swapChainImageFormat{};
     VkExtent2D      swapChainExtent{};
@@ -43,10 +44,11 @@ private:
     void createSurface();
 
     // Swapchain
-    void                createSwapChain();
+    void                createSwapchain();
     VkSurfaceFormatKHR  chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats);
     VkPresentModeKHR    chooseBestPresentationMode(const std::vector<VkPresentModeKHR> presentationModes);
     VkExtent2D          chooseSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities);
+    VkImageView         createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
     // Extension Support
     bool checkInstanceExtensionSupport  (std::vector<const char*> *checkExtensions);
@@ -89,6 +91,8 @@ private:
                                        VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 
     void setupDebugMessenger();
+
+    void cleanupImages();
 };
 
 #endif //ROASTENGINE_VKRENDERER_H
