@@ -1,43 +1,38 @@
-//
-// Created by miracs91 on 12.03.2022.
-//
-
 #ifndef ROASTENGINE_VKRENDERER_H
 #define ROASTENGINE_VKRENDERER_H
 #define GLFW_INCLUDE_VULKAN
 #include "vulkan/vulkan.h"
 #include <GLFW/glfw3.h>
-#include "../utils.h"
 #include <vector>
+#include <algorithm>
+#include "../utils.h"
 
 class vkRenderer {
 
 public:
     vkRenderer();
-
-    int init(GLFWwindow *newWindow);
-    void cleanup();
-
+    int     init(GLFWwindow *newWindow);
+    void    cleanup();
     ~vkRenderer();
 
-
 private:
-    GLFWwindow *w{};
+    GLFWwindow              *w{};
 
     // Vulkan Instance
-    VkInstance instance{};
-
-    // Debug Implementation (Validation Layers)
-    VkDebugUtilsMessengerEXT debugMessenger{};
+    VkInstance              instance{};
 
     struct {
-        VkPhysicalDevice physicalDevice;
-        VkDevice logicalDevice;
+        VkPhysicalDevice    physicalDevice;
+        VkDevice            logicalDevice;
     } mainDevice{};
 
-    VkQueue graphicsQueue{};
-    VkQueue presentationQueue{};
-    VkSurfaceKHR surface{};
+    VkQueue         graphicsQueue{};
+    VkQueue         presentationQueue{};
+    VkSurfaceKHR    surface{};
+    VkSwapchainKHR  swapChain{};
+
+    VkFormat        swapChainImageFormat{};
+    VkExtent2D      swapChainExtent{};
 
     // Instance Support
     void createInstance();
@@ -47,19 +42,28 @@ private:
     void createLogicalDevice();
     void createSurface();
 
+    // Swapchain
+    void                createSwapChain();
+    VkSurfaceFormatKHR  chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats);
+    VkPresentModeKHR    chooseBestPresentationMode(const std::vector<VkPresentModeKHR> presentationModes);
+    VkExtent2D          chooseSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities);
+
     // Extension Support
     bool checkInstanceExtensionSupport  (std::vector<const char*> *checkExtensions);
     bool extensionInList                (std::vector<VkExtensionProperties> &extensions, const char *const &checkExtension) const;
 
     // Device Support
-    bool deviceIsSuitable(VkPhysicalDevice device);
-    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-    QueueFamilyIndexes getQueueFamilies(VkPhysicalDevice device);
-    SwapChainDetails getSwapChainDetails(VkPhysicalDevice device);
+    bool                deviceIsSuitable(VkPhysicalDevice device);
+    bool                checkDeviceExtensionSupport(VkPhysicalDevice device);
+    QueueFamilyIndexes  getQueueFamilies(VkPhysicalDevice device);
+    SwapChainDetails    getSwapChainDetails(VkPhysicalDevice device);
 
 
     // Validation layers
     // TODO: creation and clean handling
+
+    // Debug Implementation (Validation Layers)
+    VkDebugUtilsMessengerEXT debugMessenger{};
 
 #ifdef NDEBUG
     const bool enableValidationLayers = false;

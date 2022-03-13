@@ -9,7 +9,7 @@ vkRenderer vKRendererImplm;
 
 GLFWwindow *rWindow;
 
-void initWindow(const std::string& wName = "Test Window", const int width = 800, const int height = 600) {
+void initWindow(const std::string& wName = "Roast Test", const int width = 800, const int height = 600) {
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -19,7 +19,7 @@ void initWindow(const std::string& wName = "Test Window", const int width = 800,
 
 int main() {
 
-    initWindow("Test Window", 800, 600);
+    initWindow("Roast Engine", 800, 600);
 
     auto initResult = vKRendererImplm.init(rWindow);
 
