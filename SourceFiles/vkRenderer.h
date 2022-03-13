@@ -1,12 +1,8 @@
-//
-// Created by miracs91 on 12.03.2022.
-//
-
 #ifndef ROASTENGINE_VKRENDERER_H
 #define ROASTENGINE_VKRENDERER_H
-
-#include <GLFW/glfw3.h>
+#define GLFW_INCLUDE_VULKAN
 #include "vulkan/vulkan.h"
+#include <GLFW/glfw3.h>
 #include "Utilities.h"
 #include <vector>
 
@@ -28,7 +24,7 @@ private:
     VkInstance instance{};
 
     // Debug Implementation (Validation Layers)
-    VkDebugUtilsMessengerEXT debugMessenger;
+    VkDebugUtilsMessengerEXT debugMessenger{};
 
     struct {
         VkPhysicalDevice physicalDevice;
@@ -36,6 +32,7 @@ private:
     } mainDevice{};
 
     VkQueue graphicsQueue{};
+    VkSurfaceKHR surface{};
 
     // Instance Support
     void createInstance();
@@ -43,6 +40,7 @@ private:
     // Devices Support
     void createPhysicalDevices();
     void createLogicalDevice();
+    void createSurface();
 
     // Extension Support
     bool checkInstanceExtensionSupport  (std::vector<const char*> *checkExtensions);

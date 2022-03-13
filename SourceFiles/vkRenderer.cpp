@@ -1,22 +1,15 @@
-//
-// Created by miracs91 on 12.03.2022.
-//
+#define GLFW_INCLUDE_VULKAN
 
 #include <stdexcept>
 #include <vector>
 #include <iostream>
+#include "vulkan/vulkan.h"
+#include <GLFW/glfw3.h>
 #include "vkRenderer.h"
 
+vkRenderer::vkRenderer() = default;
 
-
-vkRenderer::vkRenderer() {
-
-}
-
-vkRenderer::~vkRenderer() {
-
-}
-
+vkRenderer::~vkRenderer() = default;
 
 // Initialization of the window.
 int
@@ -25,10 +18,11 @@ vkRenderer::init(GLFWwindow *newWindow) {
     w = newWindow;
 
     try {
-        createInstance();           // Create Instance
-        setupDebugMessenger();      // Setup Validation Layer Messenger
+        createInstance();
+        setupDebugMessenger();
         createPhysicalDevices();
         createLogicalDevice();
+        createSurface();
     }
     catch (const std::runtime_error &e) {
         printf("ERROR %s\n", e.what());
@@ -118,10 +112,9 @@ vkRenderer::extensionInList(std::vector<VkExtensionProperties> &extensions, cons
 // Destroy Vulkan instance
 void
 vkRenderer::cleanup() {
-    if(enableValidationLayers) {
-        DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-    }
+    vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyDevice(mainDevice.logicalDevice, nullptr);
+    if(enableValidationLayers) DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     vkDestroyInstance(instance, nullptr);
     glfwDestroyWindow(w);
     glfwTerminate();
@@ -166,7 +159,7 @@ vkRenderer::deviceIsSuitable(VkPhysicalDevice device) {
      */
 
     QueueFamilyIndexes indexes = getQueueFamilies(device);
-    return indexes.graphicsFamilyIndex >= 0;
+    return indexes.isValid();
 }
 
 // Get all Queue Family Property info for the given device
@@ -187,10 +180,24 @@ vkRenderer::getQueueFamilies(VkPhysicalDevice device) {
     // check if it has required type.
     uint32_t i = 0;
     for(const auto &queueFamily : queueFamilyList) {
+
+        // Check if queue is graphics
         if(queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             indices.graphicsFamilyIndex = i;
+        }
+
+        // check if queue family supports presentation (can be both)
+        VkBool32 presentationSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentationSupport);
+
+        if(queueFamily.queueCount > 0 && presentationSupport) {
+            indices.presentationFamilyIndex = i;
+        }
+
+        if (indices.isValid()) {
             break;
         }
+
         i++;
 
     }
@@ -265,7 +272,8 @@ vkRenderer::checkValidationLayerSupport() {
     return true;
 }
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+static VKAPI_ATTR VkBool32 VKAPI_CALL
+debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType,
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -291,7 +299,8 @@ vkRenderer::getRequiredExtensions() {
     return extensions;
 }
 
-void vkRenderer::setupDebugMessenger() {
+void
+vkRenderer::setupDebugMessenger() {
     if(!enableValidationLayers) return;
 
     VkDebugUtilsMessengerCreateInfoEXT createInfo{
@@ -321,10 +330,21 @@ vkRenderer::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtils
     }
 }
 
-void vkRenderer::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
+void
+vkRenderer::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
                                                const VkAllocationCallbacks *pAllocator) {
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
     if (func != nullptr) {
         func(instance, debugMessenger, pAllocator);
+    }
+}
+
+void
+vkRenderer::createSurface() {
+
+    auto result = glfwCreateWindowSurface(instance, w, nullptr, &surface);
+
+    if(result != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create a surface");
     }
 }
