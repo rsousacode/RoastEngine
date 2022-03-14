@@ -35,7 +35,7 @@ vkRenderer::init(GLFWwindow *newWindow) {
 // Create Vulkan Instance
 void
 vkRenderer::createInstance() {
-    if(enableValidationLayers && !checkValidationLayerSupport()) {
+    if(enableValidationLayers && !hasValidationLayersSupport()) {
         throw std::runtime_error("Validation layers requested, but not available.");
     }
 
@@ -166,8 +166,6 @@ vkRenderer::deviceIsSuitable(VkPhysicalDevice device) {
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
      */
 
-    QueueFamilyIndexes indexes = getQueueFamilies(device);
-
     bool extensionsSupported = checkDeviceExtensionSupport(device);
 
     bool swapChainValid = false;
@@ -177,7 +175,7 @@ vkRenderer::deviceIsSuitable(VkPhysicalDevice device) {
         swapChainValid = !swapChainDetails.presentModeKhr.empty() && !swapChainDetails.surfaceFormatKhr.empty();
     }
 
-    return indexes.isValid() && extensionsSupported && swapChainValid;
+    return indices.isValid() && extensionsSupported && swapChainValid;
 }
 
 // Get all Queue Family Property info for the given device
@@ -222,16 +220,13 @@ vkRenderer::getQueueFamilies(VkPhysicalDevice device) {
     return  indices;
 }
 
-void
-vkRenderer::createLogicalDevice() {
 
-    QueueFamilyIndexes indices = getQueueFamilies(mainDevice.physicalDevice);
+std::vector<VkDeviceQueueCreateInfo>
+vkRenderer::generateQueueCreateInfos() {
 
-
-    float queuePriority = 1.;
-
+    std::set<uint32_t> queueFamilyIndexes = {indices.presentationFamilyIndex, indices.graphicsFamilyIndex};
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    std::set<uint32_t> queueFamilyIndexes = {indices.graphicsFamilyIndex, indices.presentationFamilyIndex};
+    float queuePriority = 1.;
 
     for(uint32_t queueFamilyIndex : queueFamilyIndexes) {
         // Queue the logical device needs to create and info to do so
@@ -246,6 +241,16 @@ vkRenderer::createLogicalDevice() {
         queueCreateInfos.push_back(queueCreateInfo);
 
     }
+
+    return queueCreateInfos;
+}
+
+void
+vkRenderer::createLogicalDevice() {
+
+    indices = getQueueFamilies(mainDevice.physicalDevice);
+
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos = generateQueueCreateInfos();
 
     // Physical Device Features the Logical device will be using
     VkPhysicalDeviceFeatures deviceFeatures {};
@@ -279,7 +284,7 @@ vkRenderer::createLogicalDevice() {
 }
 
 bool
-vkRenderer::checkValidationLayerSupport() {
+vkRenderer::hasValidationLayersSupport() {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
     std::vector<VkLayerProperties> availableLayers(layerCount);
@@ -378,6 +383,23 @@ vkRenderer::createSurface() {
     }
 }
 
+std::vector<VkExtensionProperties>
+vkRenderer::generateExtensionProperties(VkPhysicalDevice device ) {
+    uint32_t  extensionCount = 0;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    if(extensionCount == 0) {
+        return std::vector<VkExtensionProperties> (0);
+    }
+
+    std::vector<VkExtensionProperties> extensionProperties (extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr,
+                                         &extensionCount, extensionProperties.data());
+
+    return extensionProperties;
+
+}
+
 bool
 vkRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device) {
     uint32_t  extensionCount = 0;
@@ -387,9 +409,7 @@ vkRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device) {
         return false;
     }
 
-    std::vector<VkExtensionProperties> extensionProperties (extensionCount);
-    vkEnumerateDeviceExtensionProperties(device, nullptr,
-                                         &extensionCount, extensionProperties.data());
+    std::vector<VkExtensionProperties> extensionProperties  = generateExtensionProperties(device);
 
     bool hasExtension = false;
 
@@ -459,9 +479,6 @@ vkRenderer::createSwapchain() {
         imageCount = swapchainDetails.surfaceCapabilities.maxImageCount;
     }
 
-    // Todo store indexes somewhere
-    QueueFamilyIndexes indexes = getQueueFamilies(mainDevice.physicalDevice);
-
 
     VkSwapchainCreateInfoKHR swapchainCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
@@ -484,10 +501,10 @@ vkRenderer::createSwapchain() {
     };
 
     // If graphics and presentation families are different, then swapchainKhr must let images be shared between families
-    if(indexes.graphicsFamilyIndex != indexes.presentationFamilyIndex) {
+    if(indices.graphicsFamilyIndex != indices.presentationFamilyIndex) {
         uint32_t queueFamilyIndexes[] = {
-                (uint32_t) indexes.graphicsFamilyIndex,
-                (uint32_t) indexes.presentationFamilyIndex
+                (uint32_t) indices.graphicsFamilyIndex,
+                (uint32_t) indices.presentationFamilyIndex
         };
 
         swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;   // Share handling

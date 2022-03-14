@@ -35,6 +35,8 @@ private:
     VkFormat        swapChainImageFormat{};
     VkExtent2D      swapChainExtent{};
 
+    QueueFamilyIndexes indices;
+
     // Instance Support
     void createInstance();
 
@@ -51,8 +53,11 @@ private:
     VkImageView         createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
     // Extension Support
-    bool checkInstanceExtensionSupport  (std::vector<const char*> *checkExtensions);
-    bool extensionInList                (std::vector<VkExtensionProperties> &extensions, const char *const &checkExtension) const;
+    bool                                    checkInstanceExtensionSupport  (std::vector<const char*> *checkExtensions);
+    bool                                    extensionInList                (std::vector<VkExtensionProperties> &extensions,const char *const &checkExtension) const;
+    std::vector<VkDeviceQueueCreateInfo>    generateQueueCreateInfos();
+    std::vector<VkExtensionProperties>      generateExtensionProperties(VkPhysicalDevice device);
+
 
     // Device Support
     bool                deviceIsSuitable(VkPhysicalDevice device);
@@ -78,7 +83,7 @@ private:
     };
 
 
-    bool checkValidationLayerSupport();
+    bool hasValidationLayersSupport();
 
     std::vector<const char *> getRequiredExtensions();
 
@@ -93,6 +98,7 @@ private:
     void setupDebugMessenger();
 
     void cleanupImages();
+
 };
 
 #endif //ROASTENGINE_VKRENDERER_H
