@@ -9,7 +9,6 @@
 #include "vkRenderer.h"
 
 vkRenderer::vkRenderer() = default;
-
 vkRenderer::~vkRenderer() = default;
 
 // Initialization of the window.
@@ -181,8 +180,6 @@ vkRenderer::deviceIsSuitable(VkPhysicalDevice device) {
 // Get all Queue Family Property info for the given device
 QueueFamilyIndexes
 vkRenderer::getQueueFamilies(VkPhysicalDevice device) {
-    QueueFamilyIndexes indices;
-
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 

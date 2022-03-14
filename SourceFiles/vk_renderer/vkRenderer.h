@@ -54,7 +54,8 @@ private:
 
     // Extension Support
     bool                                    checkInstanceExtensionSupport  (std::vector<const char*> *checkExtensions);
-    bool                                    extensionInList                (std::vector<VkExtensionProperties> &extensions,const char *const &checkExtension) const;
+    bool                                    extensionInList                (std::vector<VkExtensionProperties> &extensions,
+                                                                            const char *const &checkExtension) const;
     std::vector<VkDeviceQueueCreateInfo>    generateQueueCreateInfos();
     std::vector<VkExtensionProperties>      generateExtensionProperties(VkPhysicalDevice device);
 
