@@ -1,7 +1,3 @@
-//
-// Created by rwork on 15.03.2022.
-//
-
 #include "mtlRenderer.h"
 
 void mtlRenderer::quit(GLFWwindow *window, int key, int scancode, int action, int mods) {

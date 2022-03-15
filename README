@@ -1,11 +1,12 @@
 ROAST ENGINE
 
-RoastEngine is a Project that aims to implement a Vulkan Renderer for 2D and 3D purposes.
-For now the initial focus is to be able to render images, textures, and geometric objects in 3D, allowing rotations using quaternions.
-The long-term goal is to be able to fit other renderers such as OpenGL, DirectX and Metal in the same engine, but the main focus will be on the Vulkan implementation.
+RoastEngine is a Project that aims to implement a multipurpose render engine
+capable of running with Vulkan, OpenGL and Metal.
 
-
-DEPS
-GLM         => https://github.com/g-truc/glm        Using a submodule in deps
-GLFW        => https://www.glfw.org/                Available via brew package manager
-VulkanSDK   => https://www.lunarg.com/vulkan-sdk/   SDK Installer
+Dependencies:
+Objective-C
+GLM         => https://github.com/g-truc/glm                            GLM
+GLFW        => https://www.glfw.org/                                    GLFW
+VulkanSDK   => https://www.lunarg.com/vulkan-sdk/                       Vulkan SDK
+AppKit      => https://developer.apple.com/documentation/appkit         AppKit
+QuartzCore  => https://developer.apple.com/documentation/quartzcore     Core Animation

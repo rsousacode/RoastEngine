@@ -10,7 +10,7 @@ link_libraries(/usr/local/lib)
 
 # Source Files
 add_executable(RoastEngine
-        SourceFiles/re_renderer/vk/main.cpp
+        SourceFiles/main.cpp
         SourceFiles/re_renderer/vk/vkRenderer.cpp
         SourceFiles/re_renderer/vk/vkRenderer.h SourceFiles/re_renderer/RERenderer.mm SourceFiles/re_renderer/RERenderer.h SourceFiles/re_renderer/ogl/oglRenderer.cpp SourceFiles/re_renderer/ogl/oglRenderer.h SourceFiles/re_renderer/mtl/mtlRenderer.mm SourceFiles/re_renderer/mtl/mtlRenderer.h)
 

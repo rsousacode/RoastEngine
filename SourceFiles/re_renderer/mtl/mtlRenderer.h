@@ -1,11 +1,6 @@
-//
-// Created by rwork on 15.03.2022.
-//
-
 #ifndef ROASTENGINE_MTLRENDERER_H
 #define ROASTENGINE_MTLRENDERER_H
-// cc glfw-metal-example.m -lGLFW -framework AppKit -framework Metal -framework QuartzCore
-//
+
 #define GLFW_INCLUDE_NONE
 #define GLFW_EXPOSE_NATIVE_COCOA
 #include <GLFW/glfw3.h>
