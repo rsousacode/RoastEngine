@@ -1,11 +1,10 @@
 #ifndef ROASTENGINE_VKRENDERER_H
 #define ROASTENGINE_VKRENDERER_H
-#define GLFW_INCLUDE_VULKAN
 #include "vulkan/vulkan.h"
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <algorithm>
-#include "../utils.h"
+#include "../../utils.h"
 
 class vkRenderer {
 
