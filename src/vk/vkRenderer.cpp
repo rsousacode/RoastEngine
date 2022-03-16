@@ -1,7 +1,6 @@
 #define GLFW_INCLUDE_VULKAN
 
 #include <stdexcept>
-#include <vector>
 #include <iostream>
 #include "vulkan/vulkan.h"
 #include <GLFW/glfw3.h>
@@ -58,7 +57,7 @@ vkRenderer::createInstance() {
     std::vector<const char *> vkExtensions = getRequiredExtensions();
 
     // Check instance extensions support
-    if (!checkInstanceExtensionSupport(&vkExtensions)) {
+    if (!supportsInstanceExtensions(&vkExtensions)) {
         throw std::runtime_error("There's no extension supported from this platform.");
     }
 
@@ -79,24 +78,29 @@ vkRenderer::createInstance() {
 
 // Check support for vulkan extensions.
 bool
-vkRenderer::checkInstanceExtensionSupport(std::vector<const char *> *checkExtensions) {
+vkRenderer::supportsInstanceExtensions(std::vector<const char *> *checkExtensions) {
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
-    std::vector<VkExtensionProperties> extensions(extensionCount);
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
+    std::vector<VkExtensionProperties> extensions = getExtensionProperties(extensionCount);
 
     // check if given extensions are in list of available extensions
     for (const auto &checkExtension: *checkExtensions) {
-        if (!extensionInList(extensions, checkExtension)) return false;
+        if (!listHasExtension(extensions, checkExtension)) return false;
     }
 
     return true;
 }
 
+std::vector<VkExtensionProperties> vkRenderer::getExtensionProperties(uint32_t &extensionCount) const {
+    std::vector<VkExtensionProperties> extensions(extensionCount);
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
+    return extensions;
+}
+
 // Check if c_string (extension) is in list
 bool
-vkRenderer::extensionInList(std::vector<VkExtensionProperties> &extensions, const char *const &checkExtension) const {
+vkRenderer::listHasExtension(std::vector<VkExtensionProperties> &extensions, const char *const &checkExtension) const {
     bool hasExtension = false;
     for (const auto &extension: extensions) {
         if (strcmp(checkExtension, extension.extensionName) == 0) {
@@ -131,15 +135,13 @@ vkRenderer::cleanupImages() {
 // Enumerate Physical Devices
 void
 vkRenderer::createPhysicalDevices() {
-    uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+    uint32_t deviceCount = getDeviceCount();
     // If no devices available, none support Vulkan
     if (deviceCount == 0) {
         throw std::runtime_error("Can't find GPUs that support Vulkan instance.");
     }
 
-    std::vector<VkPhysicalDevice> deviceList(deviceCount);
-    vkEnumeratePhysicalDevices(instance, &deviceCount, deviceList.data());
+    std::vector<VkPhysicalDevice> deviceList = getdeviceList(deviceCount);
 
     // Get actual physical device
     for(const auto &device : deviceList) {
@@ -148,6 +150,18 @@ vkRenderer::createPhysicalDevices() {
             break;
         }
     }
+}
+
+uint32_t vkRenderer::getDeviceCount() const {
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+    return deviceCount;
+}
+
+std::vector<VkPhysicalDevice> vkRenderer::getdeviceList(uint32_t &deviceCount) const {
+    std::vector<VkPhysicalDevice> deviceList(deviceCount);
+    vkEnumeratePhysicalDevices(instance, &deviceCount, deviceList.data());
+    return deviceList;
 }
 
 // Check if device is suitable to run Vulkan
@@ -461,9 +475,9 @@ void
 vkRenderer::createSwapchain() {
     // Get swap chain details so we can pick best settings
     SwapChainDetails swapchainDetails   = getSwapChainDetails(mainDevice.physicalDevice);
-    VkSurfaceFormatKHR surfaceFormat    = chooseBestSurfaceFormat(swapchainDetails.surfaceFormatKhr);
-    VkPresentModeKHR presentMode        = chooseBestPresentationMode(swapchainDetails.presentModeKhr);
-    VkExtent2D extent                   = chooseSwapExtent(swapchainDetails.surfaceCapabilities);
+    VkSurfaceFormatKHR surfaceFormat    = getSurfaceFormat(swapchainDetails.surfaceFormatKhr);
+    VkPresentModeKHR presentMode        = getPresentationMode(swapchainDetails.presentModeKhr);
+    VkExtent2D extent                   = getSwapExtent(swapchainDetails.surfaceCapabilities);
 
     // Check many images in the swap chain. 1 More to allow triple buffering
 
@@ -530,8 +544,8 @@ vkRenderer::createSwapchain() {
 
         SwapchainImage swapchainImage = {
                 .image = image,
-                .imageView = createImageView(image, swapChainImageFormat,
-                                             VK_IMAGE_ASPECT_COLOR_BIT)    // Aspect of the image we want to view
+                .imageView = getImageView(image, swapChainImageFormat,
+                                          VK_IMAGE_ASPECT_COLOR_BIT)    // Aspect of the image we want to view
         };
 
         swapChainImages.push_back(swapchainImage);
@@ -544,7 +558,7 @@ vkRenderer::createSwapchain() {
 // Alternative  :  VK_FORMAT_B8G8R8A8_UNORM
 // ColorSpace   :  VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
 VkSurfaceFormatKHR
-vkRenderer::chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats) {
+vkRenderer::getSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats) {
     if(formats.size() == 1 && formats[0].format == VK_FORMAT_UNDEFINED) {
         return {VK_FORMAT_R8G8B8A8_UNORM,VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
     }
@@ -559,7 +573,7 @@ vkRenderer::chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &forma
 }
 
 VkPresentModeKHR
-vkRenderer::chooseBestPresentationMode(const std::vector<VkPresentModeKHR> presentationModes) {
+vkRenderer::getPresentationMode(std::vector<VkPresentModeKHR> presentationModes) {
     for (const auto &presentationMode : presentationModes) {
         if( presentationMode == VK_PRESENT_MODE_MAILBOX_KHR) {
             return presentationMode;
@@ -569,7 +583,7 @@ vkRenderer::chooseBestPresentationMode(const std::vector<VkPresentModeKHR> prese
 }
 
 VkExtent2D
-vkRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities) {
+vkRenderer::getSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities) {
     // If current extent is at numeric limits, then extent can vary. Otherwise is the size of the window
     if(surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         return surfaceCapabilities.currentExtent;
@@ -600,7 +614,7 @@ vkRenderer::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities
 }
 
 VkImageView
-vkRenderer::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
+vkRenderer::getImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
     VkImageViewCreateInfo viewCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
             .image = image,                                                   // Image to create view for

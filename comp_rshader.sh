@@ -3,6 +3,6 @@ if [ ! -d "VkShaders/bin" ]; then
  mkdir VkShaders/bin
 fi
 
-glslangValidator -V VkShaders/RShader.vert -o VkShaders/bin/vert.spv
-glslangValidator -V VkShaders/RShader.frag -o VkShaders/bin/frag.spv
+glslangValidator -V src/shaders/VkShader.vert -o src/shaders/bin/vert.spv
+glslangValidator -V src/shaders/VkShader.frag -o src/shaders/bin/frag.spv
 

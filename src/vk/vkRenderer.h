@@ -4,9 +4,11 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <algorithm>
-#include "../../utils.h"
+#include "../utils.h"
+#include "../_roast/BaseRend.h"
 
-class vkRenderer {
+class vkRenderer : BaseRend {
+
 
 public:
     vkRenderer();
@@ -15,14 +17,14 @@ public:
     ~vkRenderer();
 
 private:
-    GLFWwindow              *w{};
+    GLFWwindow                  *w{};
 
     // Vulkan Instance
-    VkInstance              instance{};
+    VkInstance                  instance{};
 
     struct {
-        VkPhysicalDevice    physicalDevice;
-        VkDevice            logicalDevice;
+        VkPhysicalDevice        physicalDevice;
+        VkDevice                logicalDevice;
     } mainDevice{};
 
     VkQueue                     graphicsQueue{};
@@ -31,8 +33,8 @@ private:
     VkSwapchainKHR              swapchainKhr{};
     std::vector<SwapchainImage> swapChainImages;
 
-    VkFormat        swapChainImageFormat{};
-    VkExtent2D      swapChainExtent{};
+    VkFormat                    swapChainImageFormat{};
+    VkExtent2D                  swapChainExtent{};
 
     QueueFamilyIndexes indices;
 
@@ -46,25 +48,28 @@ private:
 
     // Swapchain
     void                createSwapchain();
-    VkSurfaceFormatKHR  chooseBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats);
-    VkPresentModeKHR    chooseBestPresentationMode(const std::vector<VkPresentModeKHR> presentationModes);
-    VkExtent2D          chooseSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities);
-    VkImageView         createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+    VkSurfaceFormatKHR  getSurfaceFormat        (const std::vector<VkSurfaceFormatKHR> &formats);
+    VkExtent2D          getSwapExtent           (const VkSurfaceCapabilitiesKHR &surfaceCapabilities);
+    VkPresentModeKHR    getPresentationMode     (std::vector<VkPresentModeKHR> presentationModes);
+
+    VkImageView         getImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
     // Extension Support
-    bool                                    checkInstanceExtensionSupport  (std::vector<const char*> *checkExtensions);
-    bool                                    extensionInList                (std::vector<VkExtensionProperties> &extensions,
-                                                                            const char *const &checkExtension) const;
+    bool                                    supportsInstanceExtensions  (std::vector<const char*> *checkExtensions);
+    bool                                    listHasExtension                (std::vector<VkExtensionProperties> &extensions,
+                                                                             const char *const &checkExtension) const;
     std::vector<VkDeviceQueueCreateInfo>    generateQueueCreateInfos();
     std::vector<VkExtensionProperties>      generateExtensionProperties(VkPhysicalDevice device);
+    std::vector<VkExtensionProperties>      getExtensionProperties(uint32_t &extensionCount) const;
+    std::vector<VkPhysicalDevice>           getdeviceList(uint32_t &deviceCount) const;
 
+    uint32_t getDeviceCount() const;
 
     // Device Support
     bool                deviceIsSuitable(VkPhysicalDevice device);
     bool                checkDeviceExtensionSupport(VkPhysicalDevice device);
     QueueFamilyIndexes  getQueueFamilies(VkPhysicalDevice device);
     SwapChainDetails    getSwapChainDetails(VkPhysicalDevice device);
-
 
     // Validation layers
     // TODO: creation and clean handling
