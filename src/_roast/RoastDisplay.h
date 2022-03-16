@@ -16,7 +16,7 @@ private:
 
     int windowWidth,windowHeight;
     GLFWwindow *pGlfwWindow;
-    RE_Type RType;
+    RDType RType;
 
     // Glfw
     static void initGlfw();

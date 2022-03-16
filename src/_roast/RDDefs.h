@@ -6,7 +6,7 @@ typedef enum RDResult {
 }RDResult;
 
 
-typedef enum RE_Type {
+typedef enum RDType {
     RE_VULKAN = 0x00000001,
     RE_OPENGL = 0x00000002,
     RE_METAL = 0x00000003
@@ -14,7 +14,7 @@ typedef enum RE_Type {
 
 
 typedef struct RoastCreateInfo {
-    RE_Type displayEngine     {};
+    RDType displayEngine      {};
     const char *engineName    = "Roast Engine";
     int majorVersion          = 1;
     int minorVersion          = 0;
