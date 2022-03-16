@@ -4,7 +4,7 @@
 int main() {
 
     RoastDisplay renderer{
-        RE_VULKAN
+        RE_METAL
     };
 
     renderer.start("Roast Engine");
