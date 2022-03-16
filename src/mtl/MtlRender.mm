@@ -1,8 +1,8 @@
 #import <stdexcept>
-#include "mtlRenderer.h"
+#include "MtlRender.h"
 
 
-bool mtlRenderer::setupAdapter() {
+bool MtlRender::setupAdapter() {
     gpu = MTLCreateSystemDefaultDevice();
     queue = [gpu newCommandQueue];
     swapchain = [CAMetalLayer layer];
@@ -11,7 +11,7 @@ bool mtlRenderer::setupAdapter() {
     return true;
 }
 
-bool mtlRenderer::initWindow(const char *wTitle, int width, int height) {
+bool MtlRender::initWindow(const char *wTitle, int width, int height) {
     if(glfwInit() == GLFW_FALSE) {
         return false;
     }
@@ -23,6 +23,6 @@ bool mtlRenderer::initWindow(const char *wTitle, int width, int height) {
     return true;
 }
 
-GLFWwindow *mtlRenderer::GetGlfwWindow() {
+GLFWwindow *MtlRender::GetGlfwWindow() {
     return pGlfwWindow;
 }

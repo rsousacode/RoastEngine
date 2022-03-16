@@ -1,5 +1,5 @@
-#ifndef ROASTENGINE_VKRENDERER_H
-#define ROASTENGINE_VKRENDERER_H
+#ifndef ROASTENGINE_VKRENDER_H
+#define ROASTENGINE_VKRENDER_H
 #include "vulkan/vulkan.h"
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -8,14 +8,14 @@
 
 #define GLFW_INCLUDE_VULKAN
 
-class vkRenderer {
+class VkRender {
 
 
 public:
-    vkRenderer();
+    VkRender();
     int     init(GLFWwindow *newWindow);
     void    cleanup();
-    ~vkRenderer();
+    ~VkRender();
 
     bool setupAdapter();
 
@@ -114,4 +114,4 @@ private:
 
 };
 
-#endif //ROASTENGINE_VKRENDERER_H
+#endif //ROASTENGINE_VKRENDER_H

@@ -1,5 +1,5 @@
-#ifndef ROASTENGINE_MTLRENDERER_H
-#define ROASTENGINE_MTLRENDERER_H
+#ifndef ROASTENGINE_MTLRENDER_H
+#define ROASTENGINE_MTLRENDER_H
 
 #define GLFW_INCLUDE_NONE
 #define GLFW_EXPOSE_NATIVE_COCOA
@@ -11,7 +11,7 @@
 #import <QuartzCore/CAMetalLayer.h>
 
 
-class mtlRenderer  {
+class MtlRender  {
 
 public:
     id<MTLCommandQueue> queue;
@@ -29,4 +29,4 @@ private:
 };
 
 
-#endif //ROASTENGINE_MTLRENDERER_H
+#endif //ROASTENGINE_MTLRENDER_H

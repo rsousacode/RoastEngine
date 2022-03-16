@@ -14,8 +14,10 @@ class RoastDisplay {
 
 private:
 
-    int windowWidth,windowHeight;
+    int windowWidth, windowHeight;
+
     GLFWwindow *pGlfwWindow;
+
     RDType RType;
 
     // Glfw
@@ -30,7 +32,7 @@ public:
 
     void setupInput();
 
-    RDResult createRenderer(const RoastCreateInfo& info);
+    RDResult createRenderer(const RDCreateInfo& info);
 };
 
 

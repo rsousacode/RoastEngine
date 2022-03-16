@@ -5,14 +5,14 @@
 #include "vulkan/vulkan.h"
 #include <GLFW/glfw3.h>
 #include <set>
-#include "vkRenderer.h"
+#include "VkRender.h"
 
-vkRenderer::vkRenderer() = default;
-vkRenderer::~vkRenderer() = default;
+VkRender::VkRender() = default;
+VkRender::~VkRender() = default;
 
 // Initialization of the window.
 int
-vkRenderer::init(GLFWwindow *newWindow) {
+VkRender::init(GLFWwindow *newWindow) {
     glfwWindow = newWindow;
     try {
         createInstance();
@@ -32,7 +32,7 @@ vkRenderer::init(GLFWwindow *newWindow) {
 
 // Create Vulkan Instance
 void
-vkRenderer::createInstance() {
+VkRender::createInstance() {
     if(enableValidationLayers && !hasValidationLayersSupport()) {
         throw std::runtime_error("Validation layers requested, but not available.");
     }
@@ -78,7 +78,7 @@ vkRenderer::createInstance() {
 
 // Check support for vulkan extensions.
 bool
-vkRenderer::supportsInstanceExtensions(std::vector<const char *> *checkExtensions) {
+VkRender::supportsInstanceExtensions(std::vector<const char *> *checkExtensions) {
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
@@ -92,7 +92,7 @@ vkRenderer::supportsInstanceExtensions(std::vector<const char *> *checkExtension
     return true;
 }
 
-std::vector<VkExtensionProperties> vkRenderer::getExtensionProperties(uint32_t &extensionCount) const {
+std::vector<VkExtensionProperties> VkRender::getExtensionProperties(uint32_t &extensionCount) const {
     std::vector<VkExtensionProperties> extensions(extensionCount);
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
     return extensions;
@@ -100,7 +100,7 @@ std::vector<VkExtensionProperties> vkRenderer::getExtensionProperties(uint32_t &
 
 // Check if c_string (extension) is in list
 bool
-vkRenderer::listHasExtension(std::vector<VkExtensionProperties> &extensions, const char *const &checkExtension) const {
+VkRender::listHasExtension(std::vector<VkExtensionProperties> &extensions, const char *const &checkExtension) const {
     bool hasExtension = false;
     for (const auto &extension: extensions) {
         if (strcmp(checkExtension, extension.extensionName) == 0) {
@@ -113,7 +113,7 @@ vkRenderer::listHasExtension(std::vector<VkExtensionProperties> &extensions, con
 
 // Destroy Vulkan instance
 void
-vkRenderer::cleanup() {
+VkRender::cleanup() {
     cleanupImages();
     vkDestroySwapchainKHR(mainDevice.logicalDevice, swapchainKhr, nullptr);
     vkDestroySurfaceKHR(instance, surface, nullptr);
@@ -126,7 +126,7 @@ vkRenderer::cleanup() {
 }
 
 void
-vkRenderer::cleanupImages() {
+VkRender::cleanupImages() {
     for (auto image : swapChainImages) {
         vkDestroyImageView(mainDevice.logicalDevice, image.imageView, nullptr);
     }
@@ -134,7 +134,7 @@ vkRenderer::cleanupImages() {
 
 // Enumerate Physical Devices
 void
-vkRenderer::createPhysicalDevices() {
+VkRender::createPhysicalDevices() {
     uint32_t deviceCount = getDeviceCount();
     // If no devices available, none support Vulkan
     if (deviceCount == 0) {
@@ -152,13 +152,13 @@ vkRenderer::createPhysicalDevices() {
     }
 }
 
-uint32_t vkRenderer::getDeviceCount() const {
+uint32_t VkRender::getDeviceCount() const {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
     return deviceCount;
 }
 
-std::vector<VkPhysicalDevice> vkRenderer::getdeviceList(uint32_t &deviceCount) const {
+std::vector<VkPhysicalDevice> VkRender::getdeviceList(uint32_t &deviceCount) const {
     std::vector<VkPhysicalDevice> deviceList(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, deviceList.data());
     return deviceList;
@@ -166,7 +166,7 @@ std::vector<VkPhysicalDevice> vkRenderer::getdeviceList(uint32_t &deviceCount) c
 
 // Check if device is suitable to run Vulkan
 bool
-vkRenderer::deviceIsSuitable(VkPhysicalDevice device) {
+VkRender::deviceIsSuitable(VkPhysicalDevice device) {
 
     /*
     // Info about the device (ID, name, type, vendor, etc)
@@ -193,7 +193,7 @@ vkRenderer::deviceIsSuitable(VkPhysicalDevice device) {
 
 // Get all Queue Family Property info for the given device
 QueueFamilyIndexes
-vkRenderer::getQueueFamilies(VkPhysicalDevice device) {
+VkRender::getQueueFamilies(VkPhysicalDevice device) {
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
@@ -233,7 +233,7 @@ vkRenderer::getQueueFamilies(VkPhysicalDevice device) {
 
 
 std::vector<VkDeviceQueueCreateInfo>
-vkRenderer::generateQueueCreateInfos() {
+VkRender::generateQueueCreateInfos() {
 
     std::set<uint32_t> queueFamilyIndexes = {indices.presentationFamilyIndex, indices.graphicsFamilyIndex};
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -257,7 +257,7 @@ vkRenderer::generateQueueCreateInfos() {
 }
 
 void
-vkRenderer::createLogicalDevice() {
+VkRender::createLogicalDevice() {
 
     indices = getQueueFamilies(mainDevice.physicalDevice);
 
@@ -295,7 +295,7 @@ vkRenderer::createLogicalDevice() {
 }
 
 bool
-vkRenderer::hasValidationLayersSupport() {
+VkRender::hasValidationLayersSupport() {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
     std::vector<VkLayerProperties> availableLayers(layerCount);
@@ -330,7 +330,7 @@ debugCallback(
 }
 
 std::vector<const char*>
-vkRenderer::getRequiredExtensions() const {
+VkRender::getRequiredExtensions() const {
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -345,7 +345,7 @@ vkRenderer::getRequiredExtensions() const {
 }
 
 void
-vkRenderer::setupDebugMessenger() {
+VkRender::setupDebugMessenger() {
     if(!enableValidationLayers) return;
 
     VkDebugUtilsMessengerCreateInfoEXT createInfo{
@@ -364,9 +364,9 @@ vkRenderer::setupDebugMessenger() {
 }
 
 VkResult
-vkRenderer::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-                                         const VkAllocationCallbacks *pAllocator,
-                                         VkDebugUtilsMessengerEXT *pDebugMessenger) {
+VkRender::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+                                       const VkAllocationCallbacks *pAllocator,
+                                       VkDebugUtilsMessengerEXT *pDebugMessenger) {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
     if (func != nullptr) {
         return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
@@ -376,8 +376,8 @@ vkRenderer::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtils
 }
 
 void
-vkRenderer::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
-                                               const VkAllocationCallbacks *pAllocator) {
+VkRender::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
+                                        const VkAllocationCallbacks *pAllocator) {
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
     if (func != nullptr) {
         func(instance, debugMessenger, pAllocator);
@@ -385,7 +385,7 @@ vkRenderer::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMesse
 }
 
 void
-vkRenderer::createSurface() {
+VkRender::createSurface() {
 
     auto result = glfwCreateWindowSurface(instance, glfwWindow, nullptr, &surface);
 
@@ -395,7 +395,7 @@ vkRenderer::createSurface() {
 }
 
 std::vector<VkExtensionProperties>
-vkRenderer::generateExtensionProperties(VkPhysicalDevice device ) {
+VkRender::generateExtensionProperties(VkPhysicalDevice device ) {
     uint32_t  extensionCount = 0;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
@@ -412,7 +412,7 @@ vkRenderer::generateExtensionProperties(VkPhysicalDevice device ) {
 }
 
 bool
-vkRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+VkRender::checkDeviceExtensionSupport(VkPhysicalDevice device) {
     uint32_t  extensionCount = 0;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
@@ -443,7 +443,7 @@ vkRenderer::checkDeviceExtensionSupport(VkPhysicalDevice device) {
 }
 
 SwapChainDetails
-vkRenderer::getSwapChainDetails(VkPhysicalDevice device) {
+VkRender::getSwapChainDetails(VkPhysicalDevice device) {
     SwapChainDetails details;
 
     // Get surface capabilities for the given surface on the physical device
@@ -472,7 +472,7 @@ vkRenderer::getSwapChainDetails(VkPhysicalDevice device) {
 
 // Creates a Swap Chain
 void
-vkRenderer::createSwapchain() {
+VkRender::createSwapchain() {
     // Get swap chain details so we can pick best settings
     SwapChainDetails swapchainDetails   = getSwapChainDetails(mainDevice.physicalDevice);
     VkSurfaceFormatKHR surfaceFormat    = getSurfaceFormat(swapchainDetails.surfaceFormatKhr);
@@ -558,7 +558,7 @@ vkRenderer::createSwapchain() {
 // Alternative  :  VK_FORMAT_B8G8R8A8_UNORM
 // ColorSpace   :  VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
 VkSurfaceFormatKHR
-vkRenderer::getSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats) {
+VkRender::getSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats) {
     if(formats.size() == 1 && formats[0].format == VK_FORMAT_UNDEFINED) {
         return {VK_FORMAT_R8G8B8A8_UNORM,VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
     }
@@ -573,7 +573,7 @@ vkRenderer::getSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats) {
 }
 
 VkPresentModeKHR
-vkRenderer::getPresentationMode(std::vector<VkPresentModeKHR> presentationModes) {
+VkRender::getPresentationMode(std::vector<VkPresentModeKHR> presentationModes) {
     for (const auto &presentationMode : presentationModes) {
         if( presentationMode == VK_PRESENT_MODE_MAILBOX_KHR) {
             return presentationMode;
@@ -583,7 +583,7 @@ vkRenderer::getPresentationMode(std::vector<VkPresentModeKHR> presentationModes)
 }
 
 VkExtent2D
-vkRenderer::getSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities) const {
+VkRender::getSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities) const {
     // If current extent is at numeric limits, then extent can vary. Otherwise is the size of the window
     if(surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         return surfaceCapabilities.currentExtent;
@@ -614,7 +614,7 @@ vkRenderer::getSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities) c
 }
 
 VkImageView
-vkRenderer::getImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const {
+VkRender::getImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const {
     VkImageViewCreateInfo viewCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
             .image = image,                                                   // Image to create view for
@@ -640,7 +640,7 @@ vkRenderer::getImageView(VkImage image, VkFormat format, VkImageAspectFlags aspe
     return imageView;
 }
 
-bool vkRenderer::setupAdapter() {
+bool VkRender::setupAdapter() {
     if(glfwInit() == GLFW_FALSE) {
         return false;
     }
@@ -649,10 +649,10 @@ bool vkRenderer::setupAdapter() {
     return true;
 }
 
-void vkRenderer::initWindow(const char *wName, int width, int height) {
+void VkRender::initWindow(const char *wName, int width, int height) {
     glfwWindow = glfwCreateWindow(width, height, wName, nullptr, nullptr);
 }
 
-GLFWwindow *vkRenderer::GetGlfwWindow() const {
+GLFWwindow *VkRender::GetGlfwWindow() const {
     return glfwWindow;
 }

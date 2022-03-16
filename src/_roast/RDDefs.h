@@ -13,9 +13,9 @@ typedef enum RDType {
 } RE_RenderEngine;
 
 
-typedef struct RoastCreateInfo {
+typedef struct RDCreateInfo {
     RDType displayEngine      {};
-    const char *engineName    = "Roast Engine";
+    const char *windowTitle    = "Roast Engine";
     int majorVersion          = 1;
     int minorVersion          = 0;
     const char* branch        = "rc";

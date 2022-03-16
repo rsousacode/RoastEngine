@@ -1,7 +1,7 @@
 #include "RoastDisplay.h"
 
-#include "../mtl/mtlRenderer.h"
-#include "../vk/vkRenderer.h"
+#include "../mtl/MtlRender.h"
+#include "../vk/VkRender.h"
 
 void
 RoastDisplay::initGlfw() {
@@ -24,19 +24,19 @@ void RoastDisplay::setupInput() {
 
 
 RDResult
-RoastDisplay::createRenderer(const RoastCreateInfo& info) {
+RoastDisplay::createRenderer(const RDCreateInfo& info) {
     // TODO: do validation
     RType = info.displayEngine;
     windowWidth = info.windowWidth;
     windowHeight = info.windowHeight;
-    start(info.engineName);
+    start(info.windowTitle);
     return RD_SUCCESS;
 }
 
 int
 RoastDisplay::start(const char *window) {
-    vkRenderer vkRenderer;
-    mtlRenderer metalRenderer{};
+    VkRender vkRenderer;
+    MtlRender mtlRenderer{};
 
     switch (RType) {
         case RE_OPENGL:
@@ -77,9 +77,9 @@ RoastDisplay::start(const char *window) {
             return 0;
 
         case RE_METAL:
-            metalRenderer.setupAdapter();
-            metalRenderer.initWindow(window, windowWidth, windowHeight);
-            pGlfwWindow = metalRenderer.GetGlfwWindow();
+            mtlRenderer.setupAdapter();
+            mtlRenderer.initWindow(window, windowWidth, windowHeight);
+            pGlfwWindow = mtlRenderer.GetGlfwWindow();
             setupInput();
 
             MTLClearColor color = MTLClearColorMake(0, 0, 0, 1);
@@ -90,7 +90,7 @@ RoastDisplay::start(const char *window) {
                 @autoreleasepool {
                     color.red = (color.red > 1.0) ? 0 : color.red + 0.01;
 
-                    id<CAMetalDrawable> surface = [metalRenderer.swapchain nextDrawable];
+                    id<CAMetalDrawable> surface = [mtlRenderer.swapchain nextDrawable];
 
                     MTLRenderPassDescriptor *pass = [MTLRenderPassDescriptor renderPassDescriptor];
                     pass.colorAttachments[0].clearColor = color;
@@ -98,7 +98,7 @@ RoastDisplay::start(const char *window) {
                     pass.colorAttachments[0].storeAction = MTLStoreActionStore;
                     pass.colorAttachments[0].texture = surface.texture;
 
-                    id<MTLCommandBuffer> buffer = [metalRenderer.queue commandBuffer];
+                    id<MTLCommandBuffer> buffer = [mtlRenderer.queue commandBuffer];
                     id<MTLRenderCommandEncoder> encoder = [buffer renderCommandEncoderWithDescriptor:pass];
                     [encoder endEncoding];
                     [buffer presentDrawable:surface];

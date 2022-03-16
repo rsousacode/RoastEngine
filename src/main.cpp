@@ -3,9 +3,9 @@
 
 int main() {
 
-    RoastCreateInfo createInfo{
+    RDCreateInfo createInfo{
             .displayEngine      =   RE_VULKAN,
-            .engineName         =    "Roast Engine",
+            .windowTitle         =    "Roast Engine",
             .majorVersion       =    1,
             .minorVersion       =    0,
             .branch             =    "",
