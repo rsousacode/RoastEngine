@@ -6,6 +6,8 @@
 #include <algorithm>
 #include "../utils.h"
 
+#define GLFW_INCLUDE_VULKAN
+
 class vkRenderer {
 
 
@@ -15,8 +17,15 @@ public:
     void    cleanup();
     ~vkRenderer();
 
+    bool setupAdapter();
+
+    void initWindow(const char *wName, int width, int height);
+
+    GLFWwindow                  *glfwWindow{};
+
+    GLFWwindow *GetGlfwWindow() const;
+
 private:
-    GLFWwindow                  *w{};
 
     // Vulkan Instance
     VkInstance                  instance{};
@@ -48,10 +57,10 @@ private:
     // Swapchain
     void                createSwapchain();
     VkSurfaceFormatKHR  getSurfaceFormat        (const std::vector<VkSurfaceFormatKHR> &formats);
-    VkExtent2D          getSwapExtent           (const VkSurfaceCapabilitiesKHR &surfaceCapabilities);
+    VkExtent2D          getSwapExtent           (const VkSurfaceCapabilitiesKHR &surfaceCapabilities) const;
     VkPresentModeKHR    getPresentationMode     (std::vector<VkPresentModeKHR> presentationModes);
 
-    VkImageView         getImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+    VkImageView         getImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
 
     // Extension Support
     bool                                    supportsInstanceExtensions  (std::vector<const char*> *checkExtensions);
@@ -62,7 +71,7 @@ private:
     std::vector<VkExtensionProperties>      getExtensionProperties(uint32_t &extensionCount) const;
     std::vector<VkPhysicalDevice>           getdeviceList(uint32_t &deviceCount) const;
 
-    uint32_t getDeviceCount() const;
+    [[nodiscard]] uint32_t getDeviceCount() const;
 
     // Device Support
     bool                deviceIsSuitable(VkPhysicalDevice device);
@@ -89,7 +98,7 @@ private:
 
     bool hasValidationLayersSupport();
 
-    std::vector<const char *> getRequiredExtensions();
+    std::vector<const char *> getRequiredExtensions() const;
 
     VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
                                           const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,

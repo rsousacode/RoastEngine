@@ -8,33 +8,29 @@
 #include <stdexcept>
 #include <iostream>
 
-#include "../vk/vkRenderer.h"
-
-typedef enum RE_Type {
-    RE_VULKAN = 0x00000001,
-    RE_OPENGL = 0x00000002,
-    RE_METAL = 0x00000003
-} RE_RenderEngine;
-
-
-#define WIDTH 1920
-#define HEIGHT 1080
+#import "RDDefs.h"
 
 class RoastDisplay {
 
 private:
 
+    int windowWidth,windowHeight;
     GLFWwindow *pGlfwWindow;
-
     RE_Type RType;
 
     // Glfw
     static void initGlfw();
 
 public:
-    int start(const char *windowTitle);
+    int start(const char *window);
 
-    explicit RoastDisplay(RE_Type rType);
+    bool shouldHandleInput = true;
+
+    static void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods);
+
+    void setupInput();
+
+    RDResult createRenderer(const RoastCreateInfo& info);
 };
 
 

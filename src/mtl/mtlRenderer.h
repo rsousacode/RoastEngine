@@ -12,29 +12,20 @@
 
 
 class mtlRenderer  {
-private:
-    GLFWwindow *pGlfwWindow{};
-    NSWindow *pNSWindow{};
-    CAMetalLayer *pSwapchain{};
-
-    id<MTLCommandQueue> queue{};
-
-    id<MTLDevice> gpu{};
-
-
-    NSWindow *getCocoaWindow(GLFWwindow *window) const;
-
-    void SetupNsWindow(CAMetalLayer *swapchain, NSWindow *nswindow) const;
-
-    void setupSwapchain();
 
 public:
+    id<MTLCommandQueue> queue;
+    id <MTLDevice> gpu;
+    bool initWindow(const char *wTitle, int width, int height);
+    bool setupAdapter();
+    GLFWwindow *GetGlfwWindow();
 
-    GLFWwindow *setupCocoa(GLFWwindow *newWindow);
+    CAMetalLayer *swapchain;
+private:
 
-    int setupDevice();
+    NSWindow *nswindow;
+    GLFWwindow *pGlfwWindow;
 
-    void cleanup();
 };
 
 

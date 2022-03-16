@@ -13,7 +13,7 @@ vkRenderer::~vkRenderer() = default;
 // Initialization of the window.
 int
 vkRenderer::init(GLFWwindow *newWindow) {
-    w = newWindow;
+    glfwWindow = newWindow;
     try {
         createInstance();
         setupDebugMessenger();
@@ -120,7 +120,7 @@ vkRenderer::cleanup() {
     vkDestroyDevice(mainDevice.logicalDevice, nullptr);
     if(enableValidationLayers) DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     vkDestroyInstance(instance, nullptr);
-    glfwDestroyWindow(w);
+    glfwDestroyWindow(glfwWindow);
     glfwTerminate();
 
 }
@@ -330,7 +330,7 @@ debugCallback(
 }
 
 std::vector<const char*>
-vkRenderer::getRequiredExtensions() {
+vkRenderer::getRequiredExtensions() const {
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -387,7 +387,7 @@ vkRenderer::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMesse
 void
 vkRenderer::createSurface() {
 
-    auto result = glfwCreateWindowSurface(instance, w, nullptr, &surface);
+    auto result = glfwCreateWindowSurface(instance, glfwWindow, nullptr, &surface);
 
     if(result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create a surface");
@@ -583,7 +583,7 @@ vkRenderer::getPresentationMode(std::vector<VkPresentModeKHR> presentationModes)
 }
 
 VkExtent2D
-vkRenderer::getSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities) {
+vkRenderer::getSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities) const {
     // If current extent is at numeric limits, then extent can vary. Otherwise is the size of the window
     if(surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         return surfaceCapabilities.currentExtent;
@@ -593,7 +593,7 @@ vkRenderer::getSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities) {
 
         uint32_t newWidth, newHeight;
 
-        glfwGetFramebufferSize(w, &width, &height);
+        glfwGetFramebufferSize(glfwWindow, &width, &height);
 
         newWidth = std::max(surfaceCapabilities.minImageExtent.width,
                             std::min(surfaceCapabilities.maxImageExtent.width, static_cast<uint32_t>(width)));
@@ -614,7 +614,7 @@ vkRenderer::getSwapExtent(const VkSurfaceCapabilitiesKHR &surfaceCapabilities) {
 }
 
 VkImageView
-vkRenderer::getImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
+vkRenderer::getImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const {
     VkImageViewCreateInfo viewCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
             .image = image,                                                   // Image to create view for
@@ -638,4 +638,21 @@ vkRenderer::getImageView(VkImage image, VkFormat format, VkImageAspectFlags aspe
         throw std::runtime_error("Failed to create an Image view!");
     }
     return imageView;
+}
+
+bool vkRenderer::setupAdapter() {
+    if(glfwInit() == GLFW_FALSE) {
+        return false;
+    }
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    return true;
+}
+
+void vkRenderer::initWindow(const char *wName, int width, int height) {
+    glfwWindow = glfwCreateWindow(width, height, wName, nullptr, nullptr);
+}
+
+GLFWwindow *vkRenderer::GetGlfwWindow() const {
+    return glfwWindow;
 }

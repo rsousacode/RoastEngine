@@ -1,9 +1,7 @@
 #include "RoastDisplay.h"
-#include "../mtl/mtlRenderer.h"
 
-RoastDisplay::RoastDisplay(const RE_Type rType) {
-    RType = rType;
-}
+#include "../mtl/mtlRenderer.h"
+#include "../vk/vkRenderer.h"
 
 void
 RoastDisplay::initGlfw() {
@@ -12,12 +10,33 @@ RoastDisplay::initGlfw() {
         throw std::runtime_error("GLFW Failed to setupCocoa");
     }
 }
+void RoastDisplay::handleInput(GLFWwindow *window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
+}
 
+void RoastDisplay::setupInput() {
+    if(shouldHandleInput) {
+        glfwSetKeyCallback(pGlfwWindow, handleInput);
+    }
+}
+
+
+RDResult
+RoastDisplay::createRenderer(const RoastCreateInfo& info) {
+    // TODO: do validation
+    RType = info.displayEngine;
+    windowWidth = info.windowWidth;
+    windowHeight = info.windowHeight;
+    start(info.engineName);
+    return RD_SUCCESS;
+}
 
 int
-RoastDisplay::start(const char *windowTitle) {
+RoastDisplay::start(const char *window) {
     vkRenderer vkRenderer;
-    mtlRenderer metalRenderer;
+    mtlRenderer metalRenderer{};
 
     switch (RType) {
         case RE_OPENGL:
@@ -27,20 +46,24 @@ RoastDisplay::start(const char *windowTitle) {
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
             initGlfw();
             glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-            pGlfwWindow = glfwCreateWindow(WIDTH, HEIGHT, windowTitle, nullptr, nullptr);
+            pGlfwWindow = glfwCreateWindow(windowWidth, windowHeight, window, nullptr, nullptr);
+            setupInput();
+
             while(!glfwWindowShouldClose(pGlfwWindow)) {
                 glfwPollEvents();
-
             }
+
+            glfwDestroyWindow(pGlfwWindow);
+            glfwTerminate();
 
             return 0;
 
         case RE_VULKAN:
-            #define GLFW_INCLUDE_VULKAN
-            initGlfw();
-            glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-            glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-            pGlfwWindow = glfwCreateWindow(WIDTH, HEIGHT, windowTitle, nullptr, nullptr);
+            vkRenderer.setupAdapter();
+            vkRenderer.initWindow(window, windowWidth, windowHeight);
+            pGlfwWindow = vkRenderer.GetGlfwWindow();
+            setupInput();
+
             if (vkRenderer.init(pGlfwWindow) == EXIT_FAILURE) {
                 return EXIT_FAILURE;
             }
@@ -54,29 +77,20 @@ RoastDisplay::start(const char *windowTitle) {
             return 0;
 
         case RE_METAL:
-            const id<MTLDevice> gpu = MTLCreateSystemDefaultDevice();
-            const id<MTLCommandQueue> queue = [gpu newCommandQueue];
-            CAMetalLayer *swapchain = [CAMetalLayer layer];
-            swapchain.device = gpu;
-            swapchain.opaque = YES;
+            metalRenderer.setupAdapter();
+            metalRenderer.initWindow(window, windowWidth, windowHeight);
+            pGlfwWindow = metalRenderer.GetGlfwWindow();
+            setupInput();
 
-            glfwInit();
-            glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-            GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, windowTitle, NULL, NULL);
-            NSWindow *nswindow = glfwGetCocoaWindow(window);
-            nswindow.contentView.layer = swapchain;
-            nswindow.contentView.wantsLayer = YES;
-
-            //glfwSetKeyCallback(window, quit);
             MTLClearColor color = MTLClearColorMake(0, 0, 0, 1);
 
-            while (!glfwWindowShouldClose(window)) {
+            while (!glfwWindowShouldClose(pGlfwWindow)) {
                 glfwPollEvents();
 
                 @autoreleasepool {
                     color.red = (color.red > 1.0) ? 0 : color.red + 0.01;
 
-                    id<CAMetalDrawable> surface = [swapchain nextDrawable];
+                    id<CAMetalDrawable> surface = [metalRenderer.swapchain nextDrawable];
 
                     MTLRenderPassDescriptor *pass = [MTLRenderPassDescriptor renderPassDescriptor];
                     pass.colorAttachments[0].clearColor = color;
@@ -84,7 +98,7 @@ RoastDisplay::start(const char *windowTitle) {
                     pass.colorAttachments[0].storeAction = MTLStoreActionStore;
                     pass.colorAttachments[0].texture = surface.texture;
 
-                    id<MTLCommandBuffer> buffer = [queue commandBuffer];
+                    id<MTLCommandBuffer> buffer = [metalRenderer.queue commandBuffer];
                     id<MTLRenderCommandEncoder> encoder = [buffer renderCommandEncoderWithDescriptor:pass];
                     [encoder endEncoding];
                     [buffer presentDrawable:surface];
@@ -92,7 +106,7 @@ RoastDisplay::start(const char *windowTitle) {
                 }
             }
 
-            glfwDestroyWindow(window);
+            glfwDestroyWindow(pGlfwWindow);
             glfwTerminate();
 
             return 0;

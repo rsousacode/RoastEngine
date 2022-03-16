@@ -18,7 +18,8 @@ add_executable(RoastEngine
         src/ogl/oglRenderer.cpp
         src/ogl/oglRenderer.h
         src/mtl/mtlRenderer.mm
-        src/mtl/mtlRenderer.h)
+        src/mtl/mtlRenderer.h
+        src/_roast/RDDefs.h)
 
 # Library Includes for Vulkan and other libraries
 include_directories(/usr/local/include/)
