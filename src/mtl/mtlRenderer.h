@@ -11,14 +11,15 @@
 #import <QuartzCore/CAMetalLayer.h>
 
 
-class mtlRenderer {
+class mtlRenderer  {
 private:
-    GLFWwindow *pGlfwWindow;
-    NSWindow *pNSWindow;
-    CAMetalLayer *pSwapchain;
+    GLFWwindow *pGlfwWindow{};
+    NSWindow *pNSWindow{};
+    CAMetalLayer *pSwapchain{};
 
-    id<MTLCommandQueue> queue;
-    id<MTLDevice> gpu;
+    id<MTLCommandQueue> queue{};
+
+    id<MTLDevice> gpu{};
 
 
     NSWindow *getCocoaWindow(GLFWwindow *window) const;
@@ -27,17 +28,11 @@ private:
 
     void setupSwapchain();
 
-    static void (*keyCallback)(int, int, int, int);
-
 public:
-    int run();
 
-    GLFWwindow *createWindow(const int width, const int height, char *wName) const;
-
+    GLFWwindow *setupCocoa(GLFWwindow *newWindow);
 
     int setupDevice();
-
-    void init(GLFWwindow *newWindow);
 
     void cleanup();
 };

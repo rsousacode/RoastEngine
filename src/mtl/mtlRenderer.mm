@@ -3,29 +3,23 @@
 int mtlRenderer::setupDevice() {
     gpu = MTLCreateSystemDefaultDevice();
     queue = [gpu newCommandQueue];
-
-}
-
-int mtlRenderer::run() {
-
-    while (!glfwWindowShouldClose(pGlfwWindow)) {
-        glfwPollEvents();
-
-    }
-
-    glfwDestroyWindow(pGlfwWindow);
-    glfwTerminate();
-
     return 0;
 }
 
+GLFWwindow *mtlRenderer::setupCocoa(GLFWwindow *newWindow) {
+    const id<MTLDevice> gpu = MTLCreateSystemDefaultDevice();
+    const id<MTLCommandQueue> queue = [gpu newCommandQueue];
+    CAMetalLayer *swapchain = [CAMetalLayer layer];
+    swapchain.device = gpu;
+    swapchain.opaque = YES;
 
-void mtlRenderer::init(GLFWwindow *newWindow) {
-    setupDevice();
-    setupSwapchain();
-    pGlfwWindow = newWindow;
-    pNSWindow = getCocoaWindow(pGlfwWindow);
-    SetupNsWindow(pSwapchain, pNSWindow);
+    glfwInit();
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    GLFWwindow *window = newWindow;
+    NSWindow *nswindow = getCocoaWindow(window);
+    SetupNsWindow(swapchain, nswindow);
+    return window;
+
 }
 
 void mtlRenderer::setupSwapchain() {
@@ -41,11 +35,6 @@ void mtlRenderer::SetupNsWindow(CAMetalLayer *swapchain, NSWindow *nswindow) con
 
 NSWindow *mtlRenderer::getCocoaWindow(GLFWwindow *window) const {
     return glfwGetCocoaWindow(window);
-}
-
-GLFWwindow *mtlRenderer::createWindow(const int width, const int height, char *wName) const {
-    GLFWwindow *window = glfwCreateWindow(width, height, wName, NULL, NULL);
-    return window;
 }
 
 void mtlRenderer::cleanup() {

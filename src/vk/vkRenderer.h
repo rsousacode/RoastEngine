@@ -5,9 +5,8 @@
 #include <vector>
 #include <algorithm>
 #include "../utils.h"
-#include "../_roast/BaseRend.h"
 
-class vkRenderer : BaseRend {
+class vkRenderer {
 
 
 public:

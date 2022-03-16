@@ -12,7 +12,13 @@ link_libraries(/usr/local/lib)
 add_executable(RoastEngine
         src/main.cpp
         src/vk/vkRenderer.cpp
-        src/vk/vkRenderer.h src/_roast/RoastDisplay.mm src/_roast/RoastDisplay.h src/ogl/oglRenderer.cpp src/ogl/oglRenderer.h src/mtl/mtlRenderer.mm src/mtl/mtlRenderer.h src/_roast/BaseRend.cpp src/_roast/BaseRend.h)
+        src/vk/vkRenderer.h
+        src/_roast/RoastDisplay.mm
+        src/_roast/RoastDisplay.h
+        src/ogl/oglRenderer.cpp
+        src/ogl/oglRenderer.h
+        src/mtl/mtlRenderer.mm
+        src/mtl/mtlRenderer.h)
 
 # Library Includes for Vulkan and other libraries
 include_directories(/usr/local/include/)

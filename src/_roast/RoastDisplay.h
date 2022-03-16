@@ -25,55 +25,16 @@ class RoastDisplay {
 private:
 
     GLFWwindow *pGlfwWindow;
+
     RE_Type RType;
 
     // Glfw
     static void initGlfw();
 
-    static void setupVkWindowHints();
-
-    static void setupOglWindowHints();
-
-    GLFWwindow * createGlfwWindow(const char *wName, int width, int height);
-
-    // Vulkan
-    GLFWwindow * initVkWindow(const char *wName, int width, int height);
-
-
-    // OpenGL Code
-    GLFWwindow * initOglWindow(const char *wName, int width, int height);
-
-    int renderLoopOgl();
-
-    int renderLoopVk();
-
-
-    int renderLoopMetal();
-
-
-    // Glew
-    int initGlew();
-
-    // GLFW misc
-    static bool vulkanSupported();
-
-    void hideWindow();
-
-    void showWindow();
-
-    int getWindowSize();
-
 public:
     int start(const char *windowTitle);
 
-    RoastDisplay(const RE_Type rType);
-    static void onKeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
-
-    GLFWwindow * initMetalWindow(const char *wTitle, int width, int height);
-
-    void onGlfwKeyCallback(int key, int scancode, int action, int mods);
-
-    void setupMetalWindowHints();
+    explicit RoastDisplay(RE_Type rType);
 };
 
 
