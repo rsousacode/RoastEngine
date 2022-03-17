@@ -1,8 +1,11 @@
-#!/bin/zsh
-if [ ! -d "VkShaders/bin" ]; then
- mkdir VkShaders/bin
+#!/bin/sh
+
+VK_SHADERS_RD_PATH="src/vk/shaders"
+
+if [ ! -d  "${VK_SHADERS_RD_PATH}/bin" ]; then
+ mkdir $VK_SHADERS_RD_PATH/bin
 fi
 
-glslangValidator -V src/shaders/VkShader.vert -o src/shaders/bin/vert.spv
-glslangValidator -V src/shaders/VkShader.frag -o src/shaders/bin/frag.spv
+glslangValidator -V $VK_SHADERS_RD_PATH/VkShader.vert -o $VK_SHADERS_RD_PATH/bin/vert.spv
+glslangValidator -V $VK_SHADERS_RD_PATH/VkShader.frag -o $VK_SHADERS_RD_PATH/bin/frag.spv
 

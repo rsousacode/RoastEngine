@@ -53,6 +53,12 @@ private:
     void createPhysicalDevices();
     void createLogicalDevice();
     void createSurface();
+    void createRenderPass();
+
+    VkPipeline graphicsPipeline;
+    VkPipelineLayout pipelineLayout;
+
+    VkRenderPass renderPass;
 
     // Swapchain
     void                createSwapchain();
@@ -112,6 +118,11 @@ private:
 
     void cleanupImages();
 
+    void createGraphicsPipeline();
+
+    static std::vector<char> readBinaryFile(const std::string &filename);
+
+    VkShaderModule createShaderModule(const std::vector<char> &code);
 };
 
 #endif //ROASTENGINE_VKRENDER_H
