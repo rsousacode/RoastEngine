@@ -24,6 +24,10 @@ VkRender::init(GLFWwindow *newWindow) {
         createSwapchain();
         createRenderPass();
         createGraphicsPipeline();
+        createFramebuffers();
+        createCommandPool();
+        createCommandBuffers();
+        subscribeCommands();
     }
     catch (const std::runtime_error &e) {
         printf("ERROR %s\n", e.what());
@@ -1071,6 +1075,11 @@ VkRender::subscribeCommands() {
 
             vkCmdBeginRenderPass(commandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+                // bin pipeline
+                vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+                // execute pipeline
+                vkCmdDraw(commandBuffers[i], 3, 1 ,0, 0);
 
             vkCmdEndRenderPass(commandBuffers[i]);
 
