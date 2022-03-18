@@ -23,7 +23,7 @@ private:
     // Glfw
     static void initGlfw();
 
-    GLFWmonitor *GetPrimaryMonitor();
+    static GLFWmonitor *GetPrimaryMonitor();
 
     GLFWmonitor *GetMonitors();
 

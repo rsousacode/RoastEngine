@@ -16,9 +16,9 @@ typedef struct RDTypeComp {
 typedef struct RDCreateInfo {
     RDTypeCompatibility typeCompatibility{.Type = RE_VULKAN};
     const char *windowTitle = "Roast Engine";
-    int majorVersion = 1;
-    int minorVersion = 0;
-    const char *branch = "rc";
+    [[maybe_unused]] int majorVersion = 1;
+    [[maybe_unused]] int minorVersion = 0;
+    [[maybe_unused]] const char *branch = "rc";
     int windowWidth = 1080;
     int windowHeight = 610;
 } RDSetupCreateInfo;

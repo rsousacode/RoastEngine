@@ -30,37 +30,19 @@ int
 RoastDisplay::start(const char *window) {
     VkRender vkRenderer;
     MtlRender mtlRenderer{};
-    OglRender oglRender {};
+    OglRender oglRender;
 
     switch (RType) {
         case RE_OPENGL:
-            oglRender.setupAdapter();
-            oglRender.initWindow(window, windowWidth, windowHeight);
+            oglRender.setupAdapter(window, windowWidth, windowHeight);
             pGlfwWindow = oglRender.GetGlfwWindow();
             setupInput();
 
             while(!glfwWindowShouldClose(pGlfwWindow)) {
-                //glClear(GL_COLOR_BUFFER_BIT);
-
-                //glfwSwapBuffers(pGlfwWindow);
-
-                glBegin(GL_QUADS);
-
-                    glColor3f(1,0,0);
-                    glVertex3f(-0.5f, 0.5f, 0.0f);
-
-                    glColor3f (0, 1, 0);
-                    glVertex3f(0.5f, .5f, .0f);
-
-                    glColor3f(.0, .0, 1.);
-                    glVertex3f(0.5f, -0.5f, 0.0f);
-
-                    glColor3f(.0,.0,1.);
-                    glVertex3f(-.5f, -.5f, .0f);
-
-                glEnd();
-
                 glfwPollEvents();
+                glfwSwapBuffers(pGlfwWindow);
+                glClearColor(.2f, .3f, .3f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
             }
 
             glfwDestroyWindow(pGlfwWindow);
@@ -130,9 +112,19 @@ RoastDisplay::finish() {
     return 0;
 }
 
-RoastDisplay
-*RoastDisplay::Instance() {
+RoastDisplay*
+RoastDisplay::Instance() {
 
     static auto* display = new RoastDisplay;
     return display;
+}
+
+GLFWmonitor*
+RoastDisplay::GetPrimaryMonitor() {
+    return nullptr;
+}
+
+GLFWmonitor*
+RoastDisplay::GetMonitors() {
+    return nullptr;
 }
