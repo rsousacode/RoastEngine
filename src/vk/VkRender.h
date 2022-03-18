@@ -95,7 +95,7 @@ private:
     bool                        checkDeviceExtensionSupport(VkPhysicalDevice device);
     QueueFamilyIndexes          getQueueFamilies(VkPhysicalDevice device);
     SwapChainDetails            getSwapChainDetails(VkPhysicalDevice device);
-    static std::vector<char>     readBinaryFile(const std::string &filename);
+    static std::vector<char>     readShaderFile(const std::string &filename);
 
     // Validation layers
     // TODO: creation and clean handling

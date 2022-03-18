@@ -5,8 +5,8 @@ project(RoastEngine)
 set(CMAKE_CXX_STANDARD 23)
 
 # Library content for Vulkan and other libraries
-link_directories(/usr/local/lib)
 link_libraries(/usr/local/lib)
+link_directories(/usr/local/lib)
 
 # Source Files
 add_executable(RoastEngine
@@ -21,6 +21,20 @@ add_executable(RoastEngine
         src/mtl/MtlRender.h
         src/_roast/RDDefs.h)
 
+
+# Engine shader compilation step
+add_custom_target(SPV_SHADER_COMP
+        COMMAND sh comp_rshader.sh
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+find_program(RD_SHELL_PATH sh)
+
+if(RD_SHELL_PATH)
+    message(STATUS "+ Unix Shell: ${RD_SHELL_PATH}")
+    add_dependencies(RoastEngine SPV_SHADER_COMP)
+endif(RD_SHELL_PATH)
+# End of Engine shader compilation step
+
 # Library Includes for Vulkan and other libraries
 include_directories(/usr/local/include/)
 
@@ -34,23 +48,14 @@ add_subdirectory(deps/glm/)
 
 # Vulkan and GLFW3 for window creation
 find_package(Vulkan)
-
 find_package(glfw3)
 find_package(OpenGL REQUIRED)
-find_package(GLEW)
 
 # Target dependencies
-
 target_link_libraries(RoastEngine Vulkan)
-
 target_link_libraries(RoastEngine glm)
-#target_link_libraries(RoastEngine "-framework glew")
-#target_link_libraries(RoastEngine glew)
-
 target_link_libraries(RoastEngine glfw)
-
 target_link_libraries(RoastEngine "-framework OpenGL")
-
 target_link_libraries(RoastEngine "-framework QuartzCore")
 target_link_libraries(RoastEngine "-framework Metal")
 target_link_libraries(RoastEngine "-framework AppKit")

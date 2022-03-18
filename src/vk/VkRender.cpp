@@ -635,10 +635,10 @@ void VkRender::createRenderPass()
 }
 
 #include <fstream>
- std::vector<char> VkRender::readBinaryFile(const std::string &filename) {
+ std::vector<char> VkRender::readShaderFile(const std::string &filename) {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file.is_open()){
-        throw std::runtime_error("failed to reach such file.");
+        throw std::runtime_error("Failed to read shader compiled file.");
     }
 
     long fileSize = file.tellg();
@@ -675,8 +675,8 @@ VkShaderModule VkRender::createShaderModule(const std::vector<char>& code)
 void VkRender::createGraphicsPipeline()
 {
     // Read in SPIR-V code of shaders
-    auto vertexShaderCode = readBinaryFile("../src/vk/shaders/bin/vert.spv");
-    auto fragmentShaderCode = readBinaryFile("../src/vk/shaders/bin/frag.spv");
+    auto vertexShaderCode = readShaderFile("../src/vk/shaders/bin/vert.spv");
+    auto fragmentShaderCode = readShaderFile("../src/vk/shaders/bin/frag.spv");
 
     // Create Shader Modules
     VkShaderModule vertexShaderModule = createShaderModule(vertexShaderCode);
@@ -1082,11 +1082,6 @@ VkRender::subscribeCommands() {
                 vkCmdDraw(commandBuffers[i], 3, 1 ,0, 0);
 
             vkCmdEndRenderPass(commandBuffers[i]);
-
-            
-        if (result != VK_SUCCESS) {
-            throw std::runtime_error("Error: end command buffer");
-        }
 
         result = vkEndCommandBuffer(commandBuffers[i]);
 
