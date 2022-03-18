@@ -20,7 +20,7 @@ RoastDisplay::setupInput() {
 
 void
 RoastDisplay::createRenderer(const RDCreateInfo& info) {
-    RType = info.displayEngine;
+    RType = info.typeCompatibility.Type;
     windowWidth = info.windowWidth;
     windowHeight = info.windowHeight;
     start(info.windowTitle);
@@ -40,9 +40,25 @@ RoastDisplay::start(const char *window) {
             setupInput();
 
             while(!glfwWindowShouldClose(pGlfwWindow)) {
-                glClear(GL_COLOR_BUFFER_BIT);
+                //glClear(GL_COLOR_BUFFER_BIT);
 
-                glfwSwapBuffers(pGlfwWindow);
+                //glfwSwapBuffers(pGlfwWindow);
+
+                glBegin(GL_QUADS);
+
+                    glColor3f(1,0,0);
+                    glVertex3f(-0.5f, 0.5f, 0.0f);
+
+                    glColor3f (0, 1, 0);
+                    glVertex3f(0.5f, .5f, .0f);
+
+                    glColor3f(.0, .0, 1.);
+                    glVertex3f(0.5f, -0.5f, 0.0f);
+
+                    glColor3f(.0,.0,1.);
+                    glVertex3f(-.5f, -.5f, .0f);
+
+                glEnd();
 
                 glfwPollEvents();
             }
@@ -112,4 +128,11 @@ RoastDisplay::start(const char *window) {
 int
 RoastDisplay::finish() {
     return 0;
+}
+
+RoastDisplay
+*RoastDisplay::Instance() {
+
+    static auto* display = new RoastDisplay;
+    return display;
 }

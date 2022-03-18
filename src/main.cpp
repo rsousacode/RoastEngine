@@ -3,8 +3,8 @@
 
 int main() {
 
-    RDCreateInfo createInfo{
-            .displayEngine      =   RE_OPENGL,
+    RDSetupCreateInfo createInfo{
+            .typeCompatibility      =   { .Type = RE_VULKAN },
             .windowTitle        =    "Roast Engine",
             .majorVersion       =    1,
             .minorVersion       =    0,
@@ -12,7 +12,6 @@ int main() {
             .windowWidth        =    1080,
             .windowHeight       =    610,
     };
-
 
 
     RoastDisplay display;

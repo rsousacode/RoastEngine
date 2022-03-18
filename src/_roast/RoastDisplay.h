@@ -40,6 +40,8 @@ private:
 
 public:
 
+    static RoastDisplay *Instance();
+
     void createRenderer(const RDCreateInfo& info);
 
 
