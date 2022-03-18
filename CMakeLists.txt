@@ -15,8 +15,8 @@ add_executable(RoastEngine
         src/vk/VkRender.h
         src/_roast/RoastDisplay.mm
         src/_roast/RoastDisplay.h
-        src/ogl/oglRenderer.cpp
-        src/ogl/oglRenderer.h
+        src/ogl/OglRender.cpp
+        src/ogl/OglRender.h
         src/mtl/MtlRender.mm
         src/mtl/MtlRender.h
         src/_roast/RDDefs.h)
@@ -49,7 +49,6 @@ add_subdirectory(deps/glm/)
 # Vulkan and GLFW3 for window creation
 find_package(Vulkan)
 find_package(glfw3)
-find_package(OpenGL REQUIRED)
 
 # Target dependencies
 target_link_libraries(RoastEngine Vulkan)

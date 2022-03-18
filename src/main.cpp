@@ -4,8 +4,8 @@
 int main() {
 
     RDCreateInfo createInfo{
-            .displayEngine      =   RE_VULKAN,
-            .windowTitle         =    "Roast Engine",
+            .displayEngine      =   RE_OPENGL,
+            .windowTitle        =    "Roast Engine",
             .majorVersion       =    1,
             .minorVersion       =    0,
             .branch             =    "",
@@ -13,11 +13,10 @@ int main() {
             .windowHeight       =    610,
     };
 
-    RoastDisplay display;
 
-    if (display.createRenderer(createInfo) == RD_FAILURE) {
-        throw std::runtime_error("Failed to init Roast Display");
-    }
+
+    RoastDisplay display;
+    display.createRenderer(createInfo);
 
     return 0;
 }

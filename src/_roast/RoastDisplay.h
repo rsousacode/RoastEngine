@@ -23,8 +23,13 @@ private:
     // Glfw
     static void initGlfw();
 
-public:
+    GLFWmonitor *GetPrimaryMonitor();
+
+    GLFWmonitor *GetMonitors();
+
     int start(const char *window);
+
+    int finish();
 
     bool shouldHandleInput = true;
 
@@ -32,7 +37,12 @@ public:
 
     void setupInput();
 
-    RDResult createRenderer(const RDCreateInfo& info);
+
+public:
+
+    void createRenderer(const RDCreateInfo& info);
+
+
 };
 
 
