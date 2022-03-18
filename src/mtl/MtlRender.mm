@@ -12,7 +12,7 @@ bool MtlRender::setupAdapter() {
 }
 
 bool MtlRender::initWindow(const char *wTitle, int width, int height) {
-    if(glfwInit() == GLFW_FALSE) {
+    if (glfwInit() == GLFW_FALSE) {
         return false;
     }
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);

@@ -6,7 +6,7 @@
 void
 RoastDisplay::initGlfw() {
     auto initResult = glfwInit();
-    if(initResult == GLFW_FALSE) {
+    if (initResult == GLFW_FALSE) {
         throw std::runtime_error("GLFW Failed to setupCocoa");
     }
 }
@@ -17,7 +17,7 @@ void RoastDisplay::handleInput(GLFWwindow *window, int key, int scancode, int ac
 }
 
 void RoastDisplay::setupInput() {
-    if(shouldHandleInput) {
+    if (shouldHandleInput) {
         glfwSetKeyCallback(pGlfwWindow, handleInput);
     }
 }

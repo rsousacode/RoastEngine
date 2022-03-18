@@ -10,7 +10,6 @@
 
 class VkRender {
 
-
 public:
     VkRender();
     int     init(GLFWwindow *newWindow);
@@ -26,6 +25,9 @@ public:
     GLFWwindow *GetGlfwWindow() const;
 
 private:
+
+    void cleanupImages();
+
 
     // Vulkan Instance
     VkInstance                  instance{};
@@ -50,15 +52,24 @@ private:
     void createInstance();
 
     // Devices Support
-    void createPhysicalDevices();
-    void createLogicalDevice();
-    void createSurface();
-    void createRenderPass();
+    void                            createPhysicalDevices();
+    void                            createLogicalDevice();
+    void                            createSurface();
+    void                            createRenderPass();
+    void                            createGraphicsPipeline();
+    void                            createFramebuffers();
+    void                            createCommandPool();
+    void                            createCommandBuffers();
 
-    VkPipeline graphicsPipeline;
-    VkPipelineLayout pipelineLayout;
+    void                            subscribeCommands();
 
-    VkRenderPass renderPass;
+    VkShaderModule                  createShaderModule(const std::vector<char> &code);
+    VkPipeline                      graphicsPipeline;
+    VkPipelineLayout                pipelineLayout;
+    VkRenderPass                    renderPass;
+    std::vector<VkFramebuffer>      framebuffers;
+    std::vector<VkCommandBuffer>    commandBuffers;
+    VkCommandPool                   graphicsCommandPool;
 
     // Swapchain
     void                createSwapchain();
@@ -80,10 +91,11 @@ private:
     [[nodiscard]] uint32_t getDeviceCount() const;
 
     // Device Support
-    bool                deviceIsSuitable(VkPhysicalDevice device);
-    bool                checkDeviceExtensionSupport(VkPhysicalDevice device);
-    QueueFamilyIndexes  getQueueFamilies(VkPhysicalDevice device);
-    SwapChainDetails    getSwapChainDetails(VkPhysicalDevice device);
+    bool                        deviceIsSuitable(VkPhysicalDevice device);
+    bool                        checkDeviceExtensionSupport(VkPhysicalDevice device);
+    QueueFamilyIndexes          getQueueFamilies(VkPhysicalDevice device);
+    SwapChainDetails            getSwapChainDetails(VkPhysicalDevice device);
+    static std::vector<char>     readBinaryFile(const std::string &filename);
 
     // Validation layers
     // TODO: creation and clean handling
@@ -116,13 +128,7 @@ private:
 
     void setupDebugMessenger();
 
-    void cleanupImages();
-
-    void createGraphicsPipeline();
-
-    static std::vector<char> readBinaryFile(const std::string &filename);
-
-    VkShaderModule createShaderModule(const std::vector<char> &code);
+    void cleanFramebuffers();
 };
 
 #endif //ROASTENGINE_VKRENDER_H

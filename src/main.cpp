@@ -15,7 +15,7 @@ int main() {
 
     RoastDisplay display;
 
-    if(display.createRenderer(createInfo) == RD_FAILURE) {
+    if (display.createRenderer(createInfo) == RD_FAILURE) {
         throw std::runtime_error("Failed to init Roast Display");
     }
 
