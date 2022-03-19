@@ -1,3 +1,5 @@
+set(CLANG_ENABLE_OBJC_WEAK, )
+
 cmake_minimum_required(VERSION 3.21)
 project(RoastEngine)
 
@@ -8,8 +10,21 @@ set(CMAKE_CXX_STANDARD 23)
 link_libraries(/usr/local/lib)
 link_directories(/usr/local/lib)
 
+include_directories(deps/imgui)
+include_directories(deps/imgui/backends)
+
+file( GLOB IMGUI_SRC
+        deps/imgui/*.h
+        deps/imgui/*.cpp
+        deps/imgui/backends/imgui_impl_metal.*
+        deps/imgui/backends/imgui_impl_glfw.*
+
+
+        )
+
 # Source Files
 add_executable(RoastEngine
+        ${IMGUI_SRC}
         src/main.cpp
         src/vk/VkRender.cpp
         src/vk/VkRender.h
@@ -19,7 +34,11 @@ add_executable(RoastEngine
         src/ogl/OglRender.h
         src/mtl/MtlRender.mm
         src/mtl/MtlRender.h
-        src/_roast/RDDefs.h)
+        src/_roast/RDDefs.h
+        deps/imgui/imgui.h
+        deps/imgui/backends/imgui_impl_metal.h
+        deps/imgui/backends/imgui_impl_glfw.h
+)
 
 
 # Engine shader compilation step
@@ -38,26 +57,28 @@ endif(RD_SHELL_PATH)
 # Library Includes for Vulkan and other libraries
 include_directories(/usr/local/include/)
 
-#GLEW
-include_directories(/opt/homebrew/Cellar/glew/2.2.0_1/include)
-include_directories(/opt/homebrew/Cellar/glew/2.2.0_1/lib)
-include_directories(/opt/homebrew/Cellar/glew/2.2.0_1)
-
 # GLM mathematical functions
 add_subdirectory(deps/glm/)
 
 # Vulkan and GLFW3 for window creation
 find_package(Vulkan)
 find_package(glfw3)
+#add_subdirectory(deps/imgui)
 
 # Target dependencies
 target_link_libraries(RoastEngine Vulkan)
 target_link_libraries(RoastEngine glm)
+#target_link_libraries(RoastEngine imgui)
 target_link_libraries(RoastEngine glfw)
 target_link_libraries(RoastEngine "-framework OpenGL")
 target_link_libraries(RoastEngine "-framework QuartzCore")
 target_link_libraries(RoastEngine "-framework Metal")
 target_link_libraries(RoastEngine "-framework AppKit")
+target_link_libraries(RoastEngine "-framework COCOA")
+
+target_link_libraries(RoastEngine "-framework IOKit")
+
+target_link_libraries(RoastEngine "-framework CoreVideo")
 
 
 

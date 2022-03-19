@@ -15,17 +15,18 @@ class MtlRender  {
 
 public:
     bool initWindow(const char *wTitle, int width, int height);
-    bool setupAdapter();
+
     GLFWwindow *GetGlfwWindow();
 
-    CAMetalLayer *swapchain;
-    id<MTLCommandQueue> queue;
-
+    CAMetalLayer *layer;
+    id <MTLCommandQueue> commandQueue;
+    MTLRenderPassDescriptor *renderPassDescriptor;
+    id <MTLDevice> device;
 private:
-    id <MTLDevice> gpu;
     NSWindow *nswindow;
     GLFWwindow *pGlfwWindow;
 
+    void Render();
 };
 
 
