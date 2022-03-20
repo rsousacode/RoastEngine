@@ -64,8 +64,8 @@ RoastDisplay::start(const char *window) {
                 // Rendering
                 ImGui::Render();
                 int display_w, display_h;
-                glfwGetFramebufferSize(pGlfwWindow, &display_w, &display_h);
-                glViewport(0, 0, display_w, display_h);
+                glfwGetFramebufferSize(pGlfwWindow, &frameBufferSize[0], &frameBufferSize[1]);
+                glViewport(0, 0, frameBufferSize[0], frameBufferSize[1]);
                 glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
                 glClear(GL_COLOR_BUFFER_BIT);
                 ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

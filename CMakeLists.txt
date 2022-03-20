@@ -1,5 +1,3 @@
-set(CLANG_ENABLE_OBJC_WEAK, )
-
 cmake_minimum_required(VERSION 3.21)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Winline")
 project(RoastEngine)

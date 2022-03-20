@@ -26,6 +26,8 @@ private:
 
     int finish();
 
+    int frameBufferSize[2];
+
     bool shouldHandleInput = true;
 
     static void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods);
