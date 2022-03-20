@@ -20,12 +20,7 @@ private:
 
     RDType RType;
 
-    // Glfw
-    static void initGlfw();
-
-    static GLFWmonitor *GetPrimaryMonitor();
-
-    GLFWmonitor *GetMonitors();
+    RDImGuiState imGuiState;
 
     int start(const char *window);
 
@@ -36,6 +31,8 @@ private:
     static void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods);
 
     void setupInput();
+
+    float clearColor[4] = {0.45f, 0.55f, 0.60f, 1.00f};
 
 
 public:

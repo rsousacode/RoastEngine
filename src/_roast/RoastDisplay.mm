@@ -7,6 +7,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_metal.h"
+#import "imgui_impl_opengl3.h"
 
 void
 RoastDisplay::handleInput(GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -36,52 +37,121 @@ RoastDisplay::start(const char *window) {
     MtlRender mtlRenderer{};
     OglRender oglRender;
 
-    switch (RType) {
-        case RE_OPENGL:
-            oglRender.setupAdapter(window, windowWidth, windowHeight);
-            pGlfwWindow = oglRender.GetGlfwWindow();
-            setupInput();
+    if(RType == RE_OPENGL) {
+        oglRender.setupAdapter(window, windowWidth, windowHeight);
+        pGlfwWindow = oglRender.GetGlfwWindow();
+        setupInput();
 
-            while(!glfwWindowShouldClose(pGlfwWindow)) {
-                glfwPollEvents();
-                glfwSwapBuffers(pGlfwWindow);
-                glClearColor(.2f, .3f, .3f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
+        // Setup Dear ImGui context
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+        // Setup Dear ImGui style
+        ImGui::StyleColorsDark();
+        //ImGui::StyleColorsClassic();
+
+        // Setup Platform/Renderer backends
+        ImGui_ImplGlfw_InitForOpenGL(pGlfwWindow, true);
+        ImGui_ImplOpenGL3_Init("#version 150");
+
+
+        while(!glfwWindowShouldClose(pGlfwWindow)) {
+            glfwPollEvents();
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+            imGuiState.showDemoWindow = true;
+            imGuiState.showAnotherWindow = false;
+            ImVec4 clear_color = ImVec4(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+
+            // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+            if (imGuiState.showDemoWindow)
+                ImGui::ShowDemoWindow(&imGuiState.showAnotherWindow);
+
+            // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+            {
+                static float f = 0.0f;
+                static int counter = 0;
+
+                ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+                ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+                ImGui::Checkbox("Demo Window", &imGuiState.showDemoWindow);      // Edit bools storing our window open/close state
+                ImGui::Checkbox("Another Window", &imGuiState.showAnotherWindow);
+
+                ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+                ImGui::ColorEdit3("clear color", (float*)&clearColor); // Edit 3 floats representing a color
+
+                if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+                    counter++;
+                ImGui::SameLine();
+                ImGui::Text("counter = %d", counter);
+
+                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                ImGui::End();
             }
 
-            glfwDestroyWindow(pGlfwWindow);
-            glfwTerminate();
-
-            return finish();
-
-        case RE_VULKAN:
-            vkRenderer.setupAdapter();
-            vkRenderer.initWindow(window, windowWidth, windowHeight);
-            pGlfwWindow = vkRenderer.GetGlfwWindow();
-            setupInput();
-
-            if (vkRenderer.init(pGlfwWindow) == EXIT_FAILURE) {
-                return EXIT_FAILURE;
+            // 3. Show another simple window.
+            if (imGuiState.showAnotherWindow)
+            {
+                ImGui::Begin("Another Window", &imGuiState.showAnotherWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+                ImGui::Text("Hello from another window!");
+                if (ImGui::Button("Close Me"))
+                    imGuiState.showAnotherWindow = false;
+                ImGui::End();
             }
 
-            while (!glfwWindowShouldClose(pGlfwWindow)) {
-                glfwPollEvents();
-            }
+            // Rendering
+            ImGui::Render();
+            int display_w, display_h;
+            glfwGetFramebufferSize(pGlfwWindow, &display_w, &display_h);
+            glViewport(0, 0, display_w, display_h);
+            glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+            glClear(GL_COLOR_BUFFER_BIT);
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-            vkRenderer.cleanup();
+            glfwSwapBuffers(pGlfwWindow);
+        }
 
-            return finish();
+        // Cleanup
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
 
-        case RE_METAL:
+        glfwDestroyWindow(pGlfwWindow);
+        glfwTerminate();
+
+        return oglRender.finish();
+    }
+
+    if(RType == RE_VULKAN) {
+        vkRenderer.setupAdapter();
+        vkRenderer.initWindow(window, windowWidth, windowHeight);
+        pGlfwWindow = vkRenderer.GetGlfwWindow();
+        setupInput();
+
+        if (vkRenderer.init(pGlfwWindow) == EXIT_FAILURE) {
+            return EXIT_FAILURE;
+        }
+
+        while (!glfwWindowShouldClose(pGlfwWindow)) {
+            glfwPollEvents();
+        }
+
+        vkRenderer.cleanup();
+
+        return finish();
+    }
+
+    if(RType == RE_VULKAN) {
+
             mtlRenderer.initWindow(window, windowWidth, windowHeight);
             pGlfwWindow = mtlRenderer.GetGlfwWindow();
             setupInput();
-
-            MTLClearColor color = MTLClearColorMake(0, 0, 0, 1);
-            // Our state
-            bool show_demo_window = true;
-            bool show_another_window = false;
-            float clear_color[4] = {0.45f, 0.55f, 0.60f, 1.00f};
 
             if (!ImGui_ImplMetal_Init(mtlRenderer.device)) {
                 throw std::runtime_error("Failed to initialize metal");
@@ -97,7 +167,8 @@ RoastDisplay::start(const char *window) {
                     id<CAMetalDrawable> drawable = [mtlRenderer.layer nextDrawable];
 
                     id<MTLCommandBuffer> commandBuffer = [mtlRenderer.commandQueue commandBuffer];
-                    mtlRenderer.renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(clear_color[0] * clear_color[3], clear_color[1] * clear_color[3], clear_color[2] * clear_color[3], clear_color[3]);
+                    mtlRenderer.renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1],
+                                                                                                        clearColor[2], clearColor[3]);;
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
@@ -110,8 +181,8 @@ RoastDisplay::start(const char *window) {
                     ImGui::NewFrame();
 
                     // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-                    if (show_demo_window)
-                        ImGui::ShowDemoWindow(&show_demo_window);
+                    if (imGuiState.showDemoWindow)
+                        ImGui::ShowDemoWindow(&imGuiState.showDemoWindow);
 
                     // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
                     {
@@ -121,11 +192,11 @@ RoastDisplay::start(const char *window) {
                         ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
                         ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-                        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-                        ImGui::Checkbox("Another Window", &show_another_window);
+                        ImGui::Checkbox("Demo Window", &imGuiState.showDemoWindow);      // Edit bools storing our window open/close state
+                        ImGui::Checkbox("Another Window", &imGuiState.showAnotherWindow);
 
                         ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-                        ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+                        ImGui::ColorEdit3("clear color", (float*)&clearColor); // Edit 3 floats representing a color
 
                         if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
                             counter++;
@@ -137,12 +208,12 @@ RoastDisplay::start(const char *window) {
                     }
 
                     // 3. Show another simple window.
-                    if (show_another_window)
+                    if (imGuiState.showAnotherWindow)
                     {
-                        ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+                        ImGui::Begin("Another Window", &imGuiState.showAnotherWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
                         ImGui::Text("Hello from another window!");
                         if (ImGui::Button("Close Me"))
-                            show_another_window = false;
+                            imGuiState.showAnotherWindow = false;
                         ImGui::End();
                     }
 
@@ -179,12 +250,3 @@ RoastDisplay::Instance() {
     return display;
 }
 
-GLFWmonitor*
-RoastDisplay::GetPrimaryMonitor() {
-    return nullptr;
-}
-
-GLFWmonitor*
-RoastDisplay::GetMonitors() {
-    return nullptr;
-}

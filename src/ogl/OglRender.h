@@ -16,6 +16,8 @@ public:
     GLFWwindow *glfwWindow;
 
     void setupAdapter(const char *wName, int wWidth, int wHeight);
+
+    int finish();
 };
 
 #endif //ROASTENGINE_OGLRENDERER_H

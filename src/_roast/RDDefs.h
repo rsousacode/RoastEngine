@@ -22,3 +22,8 @@ typedef struct RDCreateInfo {
     int windowWidth = 1080;
     int windowHeight = 610;
 } RDSetupCreateInfo;
+
+typedef struct RDGuiState {
+    bool showDemoWindow = true;
+    bool showAnotherWindow = false;
+} RDImGuiState;

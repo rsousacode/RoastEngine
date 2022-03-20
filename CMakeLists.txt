@@ -18,16 +18,15 @@ file( GLOB IMGUI_SRC
         deps/imgui/*.cpp
         deps/imgui/backends/imgui_impl_metal.*
         deps/imgui/backends/imgui_impl_glfw.*
-
-
+        deps/imgui/backends/imgui_impl_opengl3.*
         )
 
 # Source Files
 add_executable(RoastEngine
-        ${IMGUI_SRC}
         src/main.cpp
         src/vk/VkRender.cpp
         src/vk/VkRender.h
+        ${IMGUI_SRC}
         src/_roast/RoastDisplay.mm
         src/_roast/RoastDisplay.h
         src/ogl/OglRender.cpp
@@ -36,8 +35,6 @@ add_executable(RoastEngine
         src/mtl/MtlRender.h
         src/_roast/RDDefs.h
         deps/imgui/imgui.h
-        deps/imgui/backends/imgui_impl_metal.h
-        deps/imgui/backends/imgui_impl_glfw.h
 )
 
 
@@ -75,9 +72,7 @@ target_link_libraries(RoastEngine "-framework QuartzCore")
 target_link_libraries(RoastEngine "-framework Metal")
 target_link_libraries(RoastEngine "-framework AppKit")
 target_link_libraries(RoastEngine "-framework COCOA")
-
 target_link_libraries(RoastEngine "-framework IOKit")
-
 target_link_libraries(RoastEngine "-framework CoreVideo")
 
 
