@@ -171,10 +171,3 @@ RoastDisplay::finish() {
     return 0;
 }
 
-RoastDisplay*
-RoastDisplay::Instance() {
-
-    static auto* display = new RoastDisplay;
-    return display;
-}
-

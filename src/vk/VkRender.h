@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <algorithm>
-#include "../utils.h"
+#include "utils.h"
 
 #define GLFW_INCLUDE_VULKAN
 
