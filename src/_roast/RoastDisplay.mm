@@ -64,13 +64,11 @@ RoastDisplay::start(const char *window) {
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            imGuiState.showDemoWindow = true;
-            imGuiState.showAnotherWindow = false;
             ImVec4 clear_color = ImVec4(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
 
             // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
             if (imGuiState.showDemoWindow)
-                ImGui::ShowDemoWindow(&imGuiState.showAnotherWindow);
+                ImGui::ShowDemoWindow(&imGuiState.showDemoWindow);
 
             // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
             {
@@ -147,7 +145,7 @@ RoastDisplay::start(const char *window) {
         return finish();
     }
 
-    if(RType == RE_VULKAN) {
+    if(RType == RE_METAL) {
 
             mtlRenderer.initWindow(window, windowWidth, windowHeight);
             pGlfwWindow = mtlRenderer.GetGlfwWindow();
