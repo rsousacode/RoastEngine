@@ -32,8 +32,6 @@ private:
 
     void setupInput();
 
-    float clearColor[4] = {0.45f, 0.55f, 0.60f, 1.00f};
-
 
 public:
 
@@ -42,6 +40,7 @@ public:
     void createRenderer(const RDCreateInfo& info);
 
 
+    void ShowHelloWorld() const;
 };
 
 

@@ -8,6 +8,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_metal.h"
 #import "imgui_impl_opengl3.h"
+#import "RDGui.h"
 
 void
 RoastDisplay::handleInput(GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -33,119 +34,73 @@ RoastDisplay::createRenderer(const RDCreateInfo& info) {
 
 int
 RoastDisplay::start(const char *window) {
-    VkRender vkRenderer;
+    VkRender vkRenderer{};
     MtlRender mtlRenderer{};
-    OglRender oglRender;
+    OglRender oglRender{};
 
-    if(RType == RE_OPENGL) {
-        oglRender.setupAdapter(window, windowWidth, windowHeight);
-        pGlfwWindow = oglRender.GetGlfwWindow();
-        setupInput();
+    switch (RType) {
+        case RE_OPENGL:
+            oglRender.setupAdapter(window, windowWidth, windowHeight);
+            pGlfwWindow = oglRender.GetGlfwWindow();
+            setupInput();
 
-        // Setup Dear ImGui context
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-        // Setup Dear ImGui style
-        ImGui::StyleColorsDark();
-        //ImGui::StyleColorsClassic();
-
-        // Setup Platform/Renderer backends
-        ImGui_ImplGlfw_InitForOpenGL(pGlfwWindow, true);
-        ImGui_ImplOpenGL3_Init("#version 150");
+            while(!glfwWindowShouldClose(pGlfwWindow)) {
+                glfwPollEvents();
+                ImGui_ImplOpenGL3_NewFrame();
+                ImGui_ImplGlfw_NewFrame();
+                ImGui::NewFrame();
 
 
-        while(!glfwWindowShouldClose(pGlfwWindow)) {
-            glfwPollEvents();
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
+                RDGui::ShowHelloWorld(&imGuiState);
 
-            ImVec4 clear_color = ImVec4(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+                ImVec4 clear_color = ImVec4(imGuiState.clearColor[0], imGuiState.clearColor[1], imGuiState.clearColor[2], imGuiState.clearColor[3]);
 
-            // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-            if (imGuiState.showDemoWindow)
-                ImGui::ShowDemoWindow(&imGuiState.showDemoWindow);
+                // 3. Show another simple window.
+                if (imGuiState.showAnotherWindow)
+                {
+                    RDGui::ShowAnotherWindow(&imGuiState);
+                }
 
-            // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-            {
-                static float f = 0.0f;
-                static int counter = 0;
+                // Rendering
+                ImGui::Render();
+                int display_w, display_h;
+                glfwGetFramebufferSize(pGlfwWindow, &display_w, &display_h);
+                glViewport(0, 0, display_w, display_h);
+                glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+                glClear(GL_COLOR_BUFFER_BIT);
+                ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-                ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-                ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-                ImGui::Checkbox("Demo Window", &imGuiState.showDemoWindow);      // Edit bools storing our window open/close state
-                ImGui::Checkbox("Another Window", &imGuiState.showAnotherWindow);
-
-                ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-                ImGui::ColorEdit3("clear color", (float*)&clearColor); // Edit 3 floats representing a color
-
-                if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                    counter++;
-                ImGui::SameLine();
-                ImGui::Text("counter = %d", counter);
-
-                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-                ImGui::End();
+                glfwSwapBuffers(pGlfwWindow);
             }
 
-            // 3. Show another simple window.
-            if (imGuiState.showAnotherWindow)
-            {
-                ImGui::Begin("Another Window", &imGuiState.showAnotherWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-                ImGui::Text("Hello from another window!");
-                if (ImGui::Button("Close Me"))
-                    imGuiState.showAnotherWindow = false;
-                ImGui::End();
+            // Cleanup
+            ImGui_ImplOpenGL3_Shutdown();
+            ImGui_ImplGlfw_Shutdown();
+            ImGui::DestroyContext();
+
+            glfwDestroyWindow(pGlfwWindow);
+            glfwTerminate();
+
+            return oglRender.finish();
+        case RE_VULKAN:
+            vkRenderer.setupAdapter();
+            vkRenderer.initWindow(window, windowWidth, windowHeight);
+            pGlfwWindow = vkRenderer.GetGlfwWindow();
+            setupInput();
+
+            if (vkRenderer.init(pGlfwWindow) == EXIT_FAILURE) {
+                return EXIT_FAILURE;
             }
 
-            // Rendering
-            ImGui::Render();
-            int display_w, display_h;
-            glfwGetFramebufferSize(pGlfwWindow, &display_w, &display_h);
-            glViewport(0, 0, display_w, display_h);
-            glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-            glClear(GL_COLOR_BUFFER_BIT);
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            while (!glfwWindowShouldClose(pGlfwWindow)) {
+                glfwPollEvents();
+            }
 
-            glfwSwapBuffers(pGlfwWindow);
-        }
+            vkRenderer.cleanup();
 
-        // Cleanup
-        ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
-        ImGui::DestroyContext();
-
-        glfwDestroyWindow(pGlfwWindow);
-        glfwTerminate();
-
-        return oglRender.finish();
-    }
-
-    if(RType == RE_VULKAN) {
-        vkRenderer.setupAdapter();
-        vkRenderer.initWindow(window, windowWidth, windowHeight);
-        pGlfwWindow = vkRenderer.GetGlfwWindow();
-        setupInput();
-
-        if (vkRenderer.init(pGlfwWindow) == EXIT_FAILURE) {
-            return EXIT_FAILURE;
-        }
-
-        while (!glfwWindowShouldClose(pGlfwWindow)) {
-            glfwPollEvents();
-        }
-
-        vkRenderer.cleanup();
-
-        return finish();
-    }
-
-    if(RType == RE_METAL) {
+            return finish();
+            break;
+        case RE_METAL:
 
             mtlRenderer.initWindow(window, windowWidth, windowHeight);
             pGlfwWindow = mtlRenderer.GetGlfwWindow();
@@ -165,8 +120,9 @@ RoastDisplay::start(const char *window) {
                     id<CAMetalDrawable> drawable = [mtlRenderer.layer nextDrawable];
 
                     id<MTLCommandBuffer> commandBuffer = [mtlRenderer.commandQueue commandBuffer];
-                    mtlRenderer.renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1],
-                                                                                                        clearColor[2], clearColor[3]);;
+
+                    mtlRenderer.renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(imGuiState.clearColor[0], imGuiState.clearColor[1],
+                                                                                                        imGuiState.clearColor[2], imGuiState.clearColor[3]);;
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
@@ -178,41 +134,13 @@ RoastDisplay::start(const char *window) {
                     ImGui_ImplGlfw_NewFrame();
                     ImGui::NewFrame();
 
-                    // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-                    if (imGuiState.showDemoWindow)
-                        ImGui::ShowDemoWindow(&imGuiState.showDemoWindow);
-
                     // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-                    {
-                        static float f = 0.0f;
-                        static int counter = 0;
-
-                        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-                        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-                        ImGui::Checkbox("Demo Window", &imGuiState.showDemoWindow);      // Edit bools storing our window open/close state
-                        ImGui::Checkbox("Another Window", &imGuiState.showAnotherWindow);
-
-                        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-                        ImGui::ColorEdit3("clear color", (float*)&clearColor); // Edit 3 floats representing a color
-
-                        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                            counter++;
-                        ImGui::SameLine();
-                        ImGui::Text("counter = %d", counter);
-
-                        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-                        ImGui::End();
-                    }
+                    RDGui::ShowHelloWorld(&imGuiState);
 
                     // 3. Show another simple window.
                     if (imGuiState.showAnotherWindow)
                     {
-                        ImGui::Begin("Another Window", &imGuiState.showAnotherWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-                        ImGui::Text("Hello from another window!");
-                        if (ImGui::Button("Close Me"))
-                            imGuiState.showAnotherWindow = false;
-                        ImGui::End();
+                        RDGui::ShowAnotherWindow(&imGuiState);
                     }
 
                     // Rendering
@@ -235,6 +163,8 @@ RoastDisplay::start(const char *window) {
 
     return 0;
 }
+
+
 
 int
 RoastDisplay::finish() {

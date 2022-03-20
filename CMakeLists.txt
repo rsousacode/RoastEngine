@@ -1,14 +1,15 @@
 set(CLANG_ENABLE_OBJC_WEAK, )
 
 cmake_minimum_required(VERSION 3.21)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Winline")
 project(RoastEngine)
 
 # Use C++ version 23
 set(CMAKE_CXX_STANDARD 23)
 
 # Library content for Vulkan and other libraries
-link_libraries(/usr/local/lib)
 link_directories(/usr/local/lib)
+link_libraries(/usr/local/lib)
 
 include_directories(deps/imgui)
 include_directories(deps/imgui/backends)
@@ -35,7 +36,7 @@ add_executable(RoastEngine
         src/mtl/MtlRender.h
         src/_roast/RDDefs.h
         deps/imgui/imgui.h
-)
+        src/_roast/RDGui.h)
 
 
 # Engine shader compilation step
