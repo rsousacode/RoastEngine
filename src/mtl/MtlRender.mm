@@ -3,6 +3,7 @@
 #import "imgui.h"
 #import "imgui_impl_metal.h"
 #import "imgui_impl_glfw.h"
+#import "../common/RDDebug.h"
 
 
 bool MtlRender::initWindow(const char *wTitle, int width, int height) {
@@ -10,6 +11,8 @@ bool MtlRender::initWindow(const char *wTitle, int width, int height) {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
+
+    glfwSetErrorCallback(RDDebug::glfwErrorCallback);
 
     if (glfwInit() == GLFW_FALSE) {
         return false;

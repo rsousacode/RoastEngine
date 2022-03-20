@@ -3,12 +3,8 @@
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
+#include "../common/RDDebug.h"
 #include <stdexcept>
-
-void error_callback(int error, const char* description)
-{
-    fprintf(stderr, "Error: %s\n", description);
-}
 
 void OglRender::setupAdapter(const char *wName, int wWidth, int wHeight) {
     glfwInit();
@@ -35,7 +31,7 @@ void OglRender::setupAdapter(const char *wName, int wWidth, int wHeight) {
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
-    glfwSetErrorCallback(error_callback);
+    glfwSetErrorCallback(RDDebug::glfwErrorCallback);
 
     auto initResult = glfwInit();
     if (initResult == GLFW_FALSE) {

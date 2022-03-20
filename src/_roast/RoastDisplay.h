@@ -34,9 +34,16 @@ private:
 
     void setupInput();
 
+    inline void RenderGUI();
 
 public:
     void createRenderer(const RDCreateInfo& info);
+
+    void CreateMenuBar();
+
+    void ShowConsole();
+
+    void ShowRinfo();
 };
 
 

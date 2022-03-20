@@ -34,7 +34,7 @@ add_executable(RoastEngine
         src/mtl/MtlRender.h
         src/_roast/RDDefs.h
         deps/imgui/imgui.h
-        src/_roast/RDGui.h)
+        src/_roast/RDGui.h src/common/RDDebug.h)
 
 
 # Engine shader compilation step

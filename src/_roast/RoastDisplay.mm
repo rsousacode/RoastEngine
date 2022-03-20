@@ -44,32 +44,22 @@ RoastDisplay::start(const char *window) {
             pGlfwWindow = oglRender.GetGlfwWindow();
             setupInput();
 
+
             while(!glfwWindowShouldClose(pGlfwWindow)) {
                 glfwPollEvents();
                 ImGui_ImplOpenGL3_NewFrame();
                 ImGui_ImplGlfw_NewFrame();
                 ImGui::NewFrame();
 
-
-                RDGui::ShowHelloWorld(&imGuiState);
-
+                RenderGUI();
                 ImVec4 clear_color = ImVec4(imGuiState.clearColor[0], imGuiState.clearColor[1], imGuiState.clearColor[2], imGuiState.clearColor[3]);
-
-                // 3. Show another simple window.
-                if (imGuiState.showAnotherWindow)
-                {
-                    RDGui::ShowAnotherWindow(&imGuiState);
-                }
-
                 // Rendering
                 ImGui::Render();
-                int display_w, display_h;
                 glfwGetFramebufferSize(pGlfwWindow, &frameBufferSize[0], &frameBufferSize[1]);
                 glViewport(0, 0, frameBufferSize[0], frameBufferSize[1]);
                 glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
                 glClear(GL_COLOR_BUFFER_BIT);
                 ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
                 glfwSwapBuffers(pGlfwWindow);
             }
 
@@ -98,10 +88,9 @@ RoastDisplay::start(const char *window) {
 
             vkRenderer.cleanup();
 
-            return finish();
-            break;
-        case RE_METAL:
+            return 0;
 
+        case RE_METAL:
             mtlRenderer.initWindow(window, windowWidth, windowHeight);
             pGlfwWindow = mtlRenderer.GetGlfwWindow();
             setupInput();
@@ -114,9 +103,8 @@ RoastDisplay::start(const char *window) {
                 glfwPollEvents();
 
                 @autoreleasepool {
-                    int width, height;
-                    glfwGetFramebufferSize(pGlfwWindow, &width, &height);
-                    mtlRenderer.layer.drawableSize = CGSizeMake(width, height);
+                    glfwGetFramebufferSize(pGlfwWindow, &windowWidth, &windowHeight);
+                    mtlRenderer.layer.drawableSize = CGSizeMake(windowWidth, windowHeight);
                     id<CAMetalDrawable> drawable = [mtlRenderer.layer nextDrawable];
 
                     id<MTLCommandBuffer> commandBuffer = [mtlRenderer.commandQueue commandBuffer];
@@ -133,15 +121,7 @@ RoastDisplay::start(const char *window) {
                     ImGui_ImplMetal_NewFrame(mtlRenderer.renderPassDescriptor);
                     ImGui_ImplGlfw_NewFrame();
                     ImGui::NewFrame();
-
-                    // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-                    RDGui::ShowHelloWorld(&imGuiState);
-
-                    // 3. Show another simple window.
-                    if (imGuiState.showAnotherWindow)
-                    {
-                        RDGui::ShowAnotherWindow(&imGuiState);
-                    }
+                    RenderGUI();
 
                     // Rendering
                     ImGui::Render();
@@ -157,17 +137,64 @@ RoastDisplay::start(const char *window) {
 
             glfwDestroyWindow(pGlfwWindow);
             glfwTerminate();
-
-            return finish();
+            return 0;
     }
 
     return 0;
 }
 
+inline void
+RoastDisplay::RenderGUI() {
 
+    CreateMenuBar();
 
-int
-RoastDisplay::finish() {
-    return 0;
+    if(imGuiState.showRinfo) {
+        RDGui::ShowRInfo(&imGuiState, RType);
+
+    }
+
+    if (imGuiState.showAnotherWindow)
+    {
+        RDGui::ShowAnotherWindow(&imGuiState);
+    }
+
+    //RDGui::ShowDemo();
+
 }
 
+inline void
+RoastDisplay::ShowConsole() {
+
+}
+
+inline void
+RoastDisplay::CreateMenuBar() {
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Help"))
+        {
+            if (ImGui::MenuItem("Console"))
+            {
+                ShowConsole();
+            }
+
+            if (ImGui::MenuItem("Render Info"))
+            {
+                ShowRinfo();
+            }
+
+            ImGui::EndMenu();
+        }
+
+
+        ImGui::EndMainMenuBar();
+    }
+}
+
+void RoastDisplay::ShowRinfo() {
+    imGuiState.showRinfo = !imGuiState.showRinfo;
+}

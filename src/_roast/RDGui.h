@@ -12,28 +12,37 @@ namespace RDGui {
     }
 
     inline void
-    ShowHelloWorld(RDImGuiState *imGuiState) {
-        static float f = 0.0f;
-        static int counter = 0;
+    ShowRInfo(RDImGuiState *imGuiState, RDType rdType) {
 
-        ImGui::Begin("RInfo");                          // Create a window called "Hello, world!" and append into it.
+        ImGui::Begin("Render Info", &imGuiState->showRinfo);                          // Create a window called "Hello, world!" and append into it.
 
-        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-        ImGui::Checkbox("Another Window", &imGuiState->showAnotherWindow);
+        switch (rdType) {
 
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::ColorEdit3("clear color", (float*)&imGuiState->clearColor); // Edit 3 floats representing a color
+            case RE_VULKAN:
+                ImGui::Text("VULKAN - ImGUI");
+                break;
+            case RE_OPENGL:
+                ImGui::Text("OPENGL- ImGUI");
+                break;
+            case RE_METAL:
+                ImGui::Text("METAL- ImGUI");
+                break;
+        }
 
-        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-            counter++;
+        ImGui::ColorEdit3("Clear color", (float*)&imGuiState->clearColor); // Edit 3 floats representing a color
 
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", counter);
-
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::Spacing();
+        ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
 
         ImGui::End();
     }
+
+
+    inline void
+    ShowDemo() {
+        ImGui::ShowDemoWindow(reinterpret_cast<bool *>(true));
+    }
+
 
 }
