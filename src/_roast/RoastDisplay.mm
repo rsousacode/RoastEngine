@@ -148,8 +148,12 @@ RoastDisplay::RenderGUI() {
 
     CreateMenuBar();
 
+    if(imGuiState.showDemoWindow) {
+        ImGui::ShowDemoWindow(&imGuiState.showDemoWindow);
+    }
+
     if(imGuiState.showRinfo) {
-        RDGui::ShowRInfo(&imGuiState, RType);
+        ShowRInfo( RType);
 
     }
 
@@ -163,16 +167,54 @@ RoastDisplay::RenderGUI() {
 }
 
 inline void
+RoastDisplay::ShowRInfo(RDType rdType) {
+
+    ImGui::Begin("Render Info", &imGuiState.showRinfo);                          // Create a window called "Hello, world!" and append into it.
+
+    switch (rdType) {
+
+        case RE_VULKAN:
+            ImGui::Text("VULKAN - ImGUI");
+            break;
+        case RE_OPENGL:
+            ImGui::Text("OPENGL- ImGUI");
+            break;
+        case RE_METAL:
+            ImGui::Text("METAL- ImGUI");
+            break;
+    }
+
+    ImGui::ColorEdit3("Clear color", (float*)&imGuiState.clearColor); // Edit 3 floats representing a color
+
+    ImGui::Spacing();
+    ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+    ImGui::Text("Window width %d", windowWidth);
+    ImGui::Text("Window height %d", windowHeight);
+
+
+    ImGui::End();
+}
+
+
+inline void
 RoastDisplay::ShowConsole() {
 
 }
 
 inline void
 RoastDisplay::CreateMenuBar() {
+
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("File"))
         {
+            if (ImGui::MenuItem("Open"))
+            {
+            }
+
+            if (ImGui::MenuItem("New Project"))
+            {
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Help"))
@@ -185,6 +227,11 @@ RoastDisplay::CreateMenuBar() {
             if (ImGui::MenuItem("Render Info"))
             {
                 ShowRinfo();
+            }
+
+            if (ImGui::MenuItem("Show Demo"))
+            {
+                imGuiState.showDemoWindow = !imGuiState.showDemoWindow;
             }
 
             ImGui::EndMenu();

@@ -44,6 +44,8 @@ public:
     void ShowConsole();
 
     void ShowRinfo();
+
+    void ShowRInfo(RDType rdType);
 };
 
 
