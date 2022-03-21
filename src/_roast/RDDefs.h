@@ -25,7 +25,7 @@ typedef struct RDCreateInfo {
 
 typedef struct RDGuiState {
     bool showDemoWindow = false;
-    bool showAnotherWindow = false;
-    float clearColor[4]  = {0.45f, 0.55f, 0.60f, 1.00f};;
-    bool showRinfo = false;
+    float clearColor[4]  = {0.12f, 0.12f, 0.12f, 1.00f};;
+    bool showRenderInfo = false;
+    bool showOverlay = true;
 } RDImGuiState;

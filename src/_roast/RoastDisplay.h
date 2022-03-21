@@ -24,8 +24,6 @@ private:
 
     int start(const char *window);
 
-    int finish();
-
     int frameBufferSize[2];
 
     bool shouldHandleInput = true;
@@ -36,16 +34,19 @@ private:
 
     inline void RenderGUI();
 
+    inline void CreateMenuBar();
+
+    inline void ShowConsole();
+
+    inline void ShowRinfo();
+
+    inline void ShowRInfo(RDType rdType);
+
+    inline void ShowOverlay();
+
 public:
     void createRenderer(const RDCreateInfo& info);
 
-    void CreateMenuBar();
-
-    void ShowConsole();
-
-    void ShowRinfo();
-
-    void ShowRInfo(RDType rdType);
 };
 
 

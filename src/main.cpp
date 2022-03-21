@@ -9,8 +9,8 @@ int main() {
             .majorVersion       =    1,
             .minorVersion       =    0,
             .branch             =    "",
-            .windowWidth        =    1080,
-            .windowHeight       =    610,
+            .windowWidth        =    1500,
+            .windowHeight       =    900,
     };
 
 
