@@ -16,6 +16,8 @@ public:
     void    cleanup();
     ~VkRender();
 
+    float clearColor[4];
+
     bool setupAdapter();
 
     void initWindow(const char *wName, int width, int height);

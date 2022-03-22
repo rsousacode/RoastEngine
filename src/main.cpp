@@ -4,7 +4,7 @@
 int main() {
 
     RDSetupCreateInfo createInfo{
-            .typeCompatibility      =   { .Type = RE_VULKAN },
+            .typeCompatibility      =   { .Type = RE_METAL },
             .windowTitle        =    "Roast Engine",
             .majorVersion       =    1,
             .minorVersion       =    0,

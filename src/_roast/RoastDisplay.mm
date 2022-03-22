@@ -45,13 +45,13 @@ RoastDisplay::start(const char *window) {
 
 
             while(!glfwWindowShouldClose(pGlfwWindow)) {
+                ImVec4 clear_color = ImVec4(imGuiState.clearColor[0], imGuiState.clearColor[1], imGuiState.clearColor[2], imGuiState.clearColor[3]);
                 glfwPollEvents();
                 ImGui_ImplOpenGL3_NewFrame();
                 ImGui_ImplGlfw_NewFrame();
                 ImGui::NewFrame();
 
                 RenderGUI();
-                ImVec4 clear_color = ImVec4(imGuiState.clearColor[0], imGuiState.clearColor[1], imGuiState.clearColor[2], imGuiState.clearColor[3]);
                 // Rendering
                 ImGui::Render();
                 glfwGetFramebufferSize(pGlfwWindow, &frameBufferSize[0], &frameBufferSize[1]);
@@ -115,7 +115,7 @@ RoastDisplay::start(const char *window) {
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
                     id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:mtlRenderer.renderPassDescriptor];
-                    [renderEncoder pushDebugGroup:@"ImGui demo"];
+                    [renderEncoder pushDebugGroup:@"Roast Metal"];
 
                     // Start the Dear ImGui frame
                     ImGui_ImplMetal_NewFrame(mtlRenderer.renderPassDescriptor);
@@ -146,7 +146,7 @@ RoastDisplay::start(const char *window) {
 inline void
 RoastDisplay::RenderGUI() {
 
-    //CreateMenuBar();
+    CreateMenuBar();
 
     ShowOverlay();
 
