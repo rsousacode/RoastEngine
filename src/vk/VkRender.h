@@ -24,6 +24,8 @@ public:
 
     GLFWwindow *GetGlfwWindow() const;
 
+    void Draw();
+
 private:
 
     void cleanupImages();
@@ -45,6 +47,9 @@ private:
 
     VkFormat                    swapChainImageFormat{};
     VkExtent2D                  swapChainExtent{};
+    VkSemaphore                 imageAvailable;
+    VkSemaphore                 renderFinish;
+
 
     QueueFamilyIndexes indices;
 
@@ -62,6 +67,8 @@ private:
     void                            createCommandBuffers();
 
     void                            subscribeCommands();
+
+    void                            createSync();
 
     VkShaderModule                  createShaderModule(const std::vector<char> &code);
     VkPipeline                      graphicsPipeline;

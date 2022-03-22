@@ -28,6 +28,7 @@ VkRender::init(GLFWwindow *newWindow) {
         createCommandPool();
         createCommandBuffers();
         subscribeCommands();
+        createSync();
     }
     catch (const std::runtime_error &e) {
         printf("ERROR %s\n", e.what());
@@ -121,6 +122,8 @@ VkRender::listHasExtension(std::vector<VkExtensionProperties> &extensions, const
 // Destroy Vulkan instance
 void
 VkRender::cleanup() {
+    vkDestroySemaphore(mainDevice.logicalDevice, renderFinish, nullptr);
+    vkDestroySemaphore(mainDevice.logicalDevice, imageAvailable, nullptr);
     vkDestroyCommandPool(mainDevice.logicalDevice, graphicsCommandPool, nullptr);
     cleanFramebuffers();
     vkDestroyPipeline(mainDevice.logicalDevice, graphicsPipeline, nullptr);
@@ -1089,4 +1092,65 @@ VkRender::subscribeCommands() {
             throw std::runtime_error("Error: end command buffer");
         }
     }
+}
+
+void
+VkRender::Draw() {
+    // Get next available image to draw to and set something to signal when we're finished with the image
+    // Submit command buffer to queue for execution, making sure it waits for the image to be signalled as available before drawing
+    // and signals when it has finished rendering
+    // Present to screen when it has signalled finished rendering
+
+    uint32_t imageIndex;
+    vkAcquireNextImageKHR(mainDevice.logicalDevice, swapchainKhr, std::numeric_limits<uint64_t>::max(),
+                          imageAvailable, VK_NULL_HANDLE, &imageIndex);
+
+    VkPipelineStageFlags stageFlags[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+    VkSubmitInfo submitInfo = {
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .waitSemaphoreCount = 1,
+            .pWaitSemaphores = &imageAvailable,
+            .pWaitDstStageMask = stageFlags,
+            .commandBufferCount = 1,
+            .pCommandBuffers = &commandBuffers[imageIndex],
+            .signalSemaphoreCount = 1,
+            .pSignalSemaphores = &renderFinish
+    };
+
+    VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr);
+
+    if(result != VK_SUCCESS) {
+        throw std::runtime_error("Failed to submit command buffer to queue!");
+    }
+
+    VkPresentInfoKHR presentInfo = {
+            .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+            .waitSemaphoreCount = 1,
+            .pWaitSemaphores = &renderFinish,
+            .swapchainCount = 1,
+            .pSwapchains = &swapchainKhr,
+            .pImageIndices = &imageIndex
+    };
+
+    result = vkQueuePresentKHR(presentationQueue, &presentInfo);
+
+    if (result != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create vk presentation queue");
+    }
+}
+
+void
+VkRender::createSync() {
+    VkSemaphoreCreateInfo semaphoreCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
+    };
+
+    VkResult result = vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &imageAvailable);
+    result = vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &renderFinish);
+
+    if(result != VK_SUCCESS) {
+        throw std::runtime_error("Error creating vk semaphore");
+    }
+
 }

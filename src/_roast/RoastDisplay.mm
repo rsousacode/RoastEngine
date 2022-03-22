@@ -83,6 +83,7 @@ RoastDisplay::start(const char *window) {
 
             while (!glfwWindowShouldClose(pGlfwWindow)) {
                 glfwPollEvents();
+                vkRenderer.Draw();
             }
 
             vkRenderer.cleanup();
