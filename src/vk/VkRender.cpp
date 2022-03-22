@@ -76,28 +76,21 @@ VkRender::createInstance() {
 
     VkInstanceCreateInfo createInfo = {
             .sType                  = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-            .pNext = nullptr,
             .pApplicationInfo       = &appInfo,
             .enabledLayerCount      = static_cast<uint32_t>(validationLayers.size()),
             .ppEnabledLayerNames    = validationLayers.data(),
     };
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
-    populateDebugMessengerCreateInfo(debugCreateInfo);
 
     if (enableValidationLayers && !hasValidationLayersSupport()) {
 
+        populateDebugMessengerCreateInfo(debugCreateInfo);
         createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
         if (CreateDebugUtilsMessengerEXT(instance, &debugCreateInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
             throw std::runtime_error("failed to set up debug messenger!");
         }
-    } else {
-        // Validation Layers
-        createInfo.enabledLayerCount        = 0;
-        createInfo.ppEnabledLayerNames      = nullptr;
     }
-
 
     // Create list to hold instance extensions
     std::vector<const char *> vkExtensions = getRequiredExtensions();
