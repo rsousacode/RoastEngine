@@ -151,6 +151,7 @@ VkRender::listHasExtension(std::vector<VkExtensionProperties> &extensions, const
 // Destroy Vulkan instance
 void
 VkRender::cleanup() {
+    vkDeviceWaitIdle(mainDevice.logicalDevice);
     vkDestroySemaphore(mainDevice.logicalDevice, renderFinish, nullptr);
     vkDestroySemaphore(mainDevice.logicalDevice, imageAvailable, nullptr);
     vkDestroyCommandPool(mainDevice.logicalDevice, graphicsCommandPool, nullptr);
@@ -1071,7 +1072,7 @@ VkRender::subscribeCommands() {
 
     // Begin render pass
     VkRenderPassBeginInfo renderPassBeginInfo = {
-            .sType = VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO,
+            .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
             .renderPass = renderPass,   // Size of region to run render pass
             .renderArea = renderArea,   // Starting point of render pass in px
             .clearValueCount = 1,
