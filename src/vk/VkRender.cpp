@@ -1,12 +1,12 @@
 #define GLFW_INCLUDE_VULKAN
-
-#include <stdexcept>
-#include <iostream>
-#include "vulkan/vulkan.h"
-#include <GLFW/glfw3.h>
-#include <set>
-#include <array>
 #include "VkRender.h"
+
+#import <stdexcept>
+#import <iostream>
+#import "vulkan/vulkan.h"
+#import <GLFW/glfw3.h>
+#import <set>
+#import <array>
 
 VkRender::VkRender() = default;
 VkRender::~VkRender() = default;
@@ -38,13 +38,32 @@ VkRender::init(GLFWwindow *newWindow) {
     return 0;
 }
 
+static VKAPI_ATTR VkBool32 VKAPI_CALL
+debugCallback(
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT messageType,
+        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+        void* pUserData) {
+
+    std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+
+    return VK_FALSE;
+}
+
+
+
+void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfoExt) {
+    createInfoExt = {
+            .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+            .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+            .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+            .pfnUserCallback = debugCallback
+    };
+}
+
 // Create Vulkan Instance
 void
 VkRender::createInstance() {
-    if (enableValidationLayers && !hasValidationLayersSupport()) {
-        throw std::runtime_error("Validation layers requested, but not available.");
-    }
-
     VkApplicationInfo appInfo = {
             .sType                   = VK_STRUCTURE_TYPE_APPLICATION_INFO,
             .pApplicationName        = "RoastEngine",
@@ -54,12 +73,31 @@ VkRender::createInstance() {
             .apiVersion              = VK_API_VERSION_1_3,
     };
 
+
     VkInstanceCreateInfo createInfo = {
             .sType                  = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+            .pNext = nullptr,
             .pApplicationInfo       = &appInfo,
             .enabledLayerCount      = static_cast<uint32_t>(validationLayers.size()),
-            .ppEnabledLayerNames    = validationLayers.data()
+            .ppEnabledLayerNames    = validationLayers.data(),
     };
+
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
+    populateDebugMessengerCreateInfo(debugCreateInfo);
+
+    if (enableValidationLayers && !hasValidationLayersSupport()) {
+
+        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        if (CreateDebugUtilsMessengerEXT(instance, &debugCreateInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+            throw std::runtime_error("failed to set up debug messenger!");
+        }
+    } else {
+        // Validation Layers
+        createInfo.enabledLayerCount        = 0;
+        createInfo.ppEnabledLayerNames      = nullptr;
+    }
+
 
     // Create list to hold instance extensions
     std::vector<const char *> vkExtensions = getRequiredExtensions();
@@ -72,9 +110,7 @@ VkRender::createInstance() {
     createInfo.enabledExtensionCount    = static_cast<uint32_t>(vkExtensions.size());
     createInfo.ppEnabledExtensionNames  = vkExtensions.data();
 
-    // Validation Layers
-    createInfo.enabledLayerCount        = 0;
-    createInfo.ppEnabledLayerNames      = nullptr;
+
 
     // Create instance
     VkResult r                          = vkCreateInstance(&createInfo, nullptr, &instance);
@@ -332,17 +368,7 @@ VkRender::hasValidationLayersSupport() {
     return true;
 }
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL
-debugCallback(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-        void* pUserData) {
 
-    std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-
-    return VK_FALSE;
-}
 
 std::vector<const char*>
 VkRender::getRequiredExtensions() const {
@@ -363,15 +389,8 @@ void
 VkRender::setupDebugMessenger() {
     if (!enableValidationLayers) return;
 
-    VkDebugUtilsMessengerCreateInfoEXT createInfo{
-            .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-            .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                    VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
-            .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                    VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
-            .pfnUserCallback = debugCallback,
-            .pUserData = nullptr // Optional
-    };
+    VkDebugUtilsMessengerCreateInfoEXT createInfo;
+    populateDebugMessengerCreateInfo(createInfo);
 
     if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
         throw std::runtime_error("failed to set up debug messenger!");
@@ -637,7 +656,7 @@ void VkRender::createRenderPass()
     }
 }
 
-#include <fstream>
+#import <fstream>
  std::vector<char> VkRender::readShaderFile(const std::string &filename) {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file.is_open()){

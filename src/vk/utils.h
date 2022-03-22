@@ -1,6 +1,6 @@
 #pragma once
-#include <cstdint>
-#include <vector>
+#import <cstdint>
+#import <vector>
 
 const std::vector<const char *> deviceExtensions ={
         VK_KHR_SWAPCHAIN_EXTENSION_NAME

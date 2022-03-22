@@ -1,10 +1,10 @@
-#include <GLFW/glfw3.h>
 #include "OglRender.h"
-#include "imgui.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_impl_glfw.h"
-#include "../common/RDDebug.h"
-#include <stdexcept>
+#import <GLFW/glfw3.h>
+#import "imgui.h"
+#import "imgui_impl_opengl3.h"
+#import "imgui_impl_glfw.h"
+#import "../common/RDDebug.h"
+#import<stdexcept>
 
 void OglRender::setupAdapter(const char *wName, int wWidth, int wHeight) {
     glfwInit();
