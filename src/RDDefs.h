@@ -6,7 +6,9 @@ typedef enum RDResult {
 typedef enum RDType {
     RE_VULKAN = 0x00000001,
     RE_OPENGL = 0x00000002,
-    RE_METAL = 0x00000003
+    RE_METAL = 0x00000003,
+    RE_NONE = 0x00000004,
+
 } RE_RenderEngine;
 
 typedef struct RDTypeComp {

@@ -1,3 +1,5 @@
+#include <math.h>
+
 typedef struct
 Vector2DData {
     // x,y,z
@@ -78,3 +80,23 @@ Vector3DData {
 
 } Vector3;
 
+inline Vector3DData operator *(const Vector3DData& vector, float s) {
+    return (Vector3DData(vector[0] * s, vector[1] * s, vector[2] * s));
+}
+
+inline Vector3DData operator / (const Vector3DData& v, float s) {
+    s = 1.0F / s;
+    return (Vector3DData(v[0] * s , v[1] * s, v[2] * s));
+}
+
+inline Vector3DData operator -(const Vector3DData& v) {
+    return (Vector3DData(-v[0], - v[1], -v[2]));
+}
+
+inline float Magintude(const Vector3DData v) {
+    return (sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]));
+}
+
+inline Vector3DData Normalized(const Vector3DData& v) {
+    return (v / Magintude(v));
+}

@@ -33,19 +33,17 @@ RoastDisplay::createRenderer(const RDCreateInfo& info) {
 
 int
 RoastDisplay::start(const char *window) {
-    VkRender vkRenderer{};
-    MtlRender mtlRenderer{};
-    OglRender oglRender{};
-
     switch (RType) {
-        case RE_OPENGL:
+        case RE_OPENGL: {
+            OglRender oglRender{};
             oglRender.setupAdapter(window, windowWidth, windowHeight);
             pGlfwWindow = oglRender.GetGlfwWindow();
             setupInput();
 
 
-            while(!glfwWindowShouldClose(pGlfwWindow)) {
-                ImVec4 clear_color = ImVec4(imGuiState.clearColor[0], imGuiState.clearColor[1], imGuiState.clearColor[2], imGuiState.clearColor[3]);
+            while (!glfwWindowShouldClose(pGlfwWindow)) {
+                ImVec4 clear_color = ImVec4(imGuiState.clearColor[0], imGuiState.clearColor[1],
+                                            imGuiState.clearColor[2], imGuiState.clearColor[3]);
                 glfwPollEvents();
                 ImGui_ImplOpenGL3_NewFrame();
                 ImGui_ImplGlfw_NewFrame();
@@ -56,7 +54,8 @@ RoastDisplay::start(const char *window) {
                 ImGui::Render();
                 glfwGetFramebufferSize(pGlfwWindow, &frameBufferSize[0], &frameBufferSize[1]);
                 glViewport(0, 0, frameBufferSize[0], frameBufferSize[1]);
-                glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+                glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
+                             clear_color.z * clear_color.w, clear_color.w);
                 glClear(GL_COLOR_BUFFER_BIT);
                 ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
                 glfwSwapBuffers(pGlfwWindow);
@@ -71,7 +70,9 @@ RoastDisplay::start(const char *window) {
             glfwTerminate();
 
             return oglRender.finish();
-        case RE_VULKAN:
+        }
+        case RE_VULKAN: {
+            VkRender vkRenderer{};
             vkRenderer.setupAdapter();
             vkRenderer.initWindow(window, windowWidth, windowHeight);
             pGlfwWindow = vkRenderer.GetGlfwWindow();
@@ -87,10 +88,10 @@ RoastDisplay::start(const char *window) {
             }
 
             vkRenderer.cleanup();
+        }
 
-            return 0;
-
-        case RE_METAL:
+        case RE_METAL: {
+            MtlRender mtlRenderer{};
             mtlRenderer.initWindow(window, windowWidth, windowHeight);
             pGlfwWindow = mtlRenderer.GetGlfwWindow();
             setupInput();
@@ -105,12 +106,13 @@ RoastDisplay::start(const char *window) {
                 @autoreleasepool {
                     glfwGetFramebufferSize(pGlfwWindow, &frameBufferSize[0], &frameBufferSize[1]);
                     mtlRenderer.layer.drawableSize = CGSizeMake(frameBufferSize[0], frameBufferSize[1]);
-                    id<CAMetalDrawable> drawable = [mtlRenderer.layer nextDrawable];
+                    id <CAMetalDrawable> drawable = [mtlRenderer.layer nextDrawable];
 
-                    id<MTLCommandBuffer> commandBuffer = [mtlRenderer.commandQueue commandBuffer];
+                    id <MTLCommandBuffer> commandBuffer = [mtlRenderer.commandQueue commandBuffer];
 
-                    mtlRenderer.renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(imGuiState.clearColor[0], imGuiState.clearColor[1],
-                                                                                                        imGuiState.clearColor[2], imGuiState.clearColor[3]);;
+                    mtlRenderer.renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(
+                            imGuiState.clearColor[0], imGuiState.clearColor[1],
+                            imGuiState.clearColor[2], imGuiState.clearColor[3]);;
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
@@ -137,7 +139,10 @@ RoastDisplay::start(const char *window) {
 
             glfwDestroyWindow(pGlfwWindow);
             glfwTerminate();
-            return 0;
+        }
+
+        case RE_NONE:
+            break;
     }
 
     return 0;
