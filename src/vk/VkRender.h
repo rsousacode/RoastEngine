@@ -11,6 +11,7 @@
 class VkRender {
 
 public:
+    const int MAX_FRAME_DRAWS = 2;
     VkRender();
     int     init(GLFWwindow *newWindow);
     void    cleanup();
@@ -45,12 +46,10 @@ private:
     VkQueue                     presentationQueue{};
     VkSurfaceKHR                surface{};
     VkSwapchainKHR              swapchainKhr{};
-    std::vector<SwapchainImage> swapChainImages;
+
 
     VkFormat                    swapChainImageFormat{};
     VkExtent2D                  swapChainExtent{};
-    VkSemaphore                 imageAvailable;
-    VkSemaphore                 renderFinish;
 
 
     QueueFamilyIndexes indices;
@@ -72,13 +71,22 @@ private:
 
     void                            createSync();
 
+    int                             currentFrame = 0;
     VkShaderModule                  createShaderModule(const std::vector<char> &code);
     VkPipeline                      graphicsPipeline;
     VkPipelineLayout                pipelineLayout;
     VkRenderPass                    renderPass;
-    std::vector<VkFramebuffer>      framebuffers;
-    std::vector<VkCommandBuffer>    commandBuffers;
     VkCommandPool                   graphicsCommandPool;
+
+    std::vector<SwapchainImage> swapChainImages;
+    std::vector<VkFramebuffer>   swapChainFramebuffers;
+    std::vector<VkCommandBuffer> commandBuffers;
+    std::vector<VkFramebuffer>      framebuffers;
+
+    // - Synchronisation
+    std::vector<VkSemaphore> imageAvailable;
+    std::vector<VkSemaphore> renderFinish;
+    std::vector<VkFence> drawFences;
 
     // Swapchain
     void                createSwapchain();
@@ -138,6 +146,8 @@ private:
     void setupDebugMessenger();
 
     void cleanFramebuffers();
+
+    void destroySemaphores();
 };
 
 #endif //ROASTENGINE_VKRENDER_H

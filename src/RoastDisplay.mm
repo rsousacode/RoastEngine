@@ -89,6 +89,7 @@ RoastDisplay::start(const char *window) {
 
             vkRenderer.cleanup();
         }
+        return 0;
 
         case RE_METAL: {
             MtlRender mtlRenderer{};
@@ -142,7 +143,7 @@ RoastDisplay::start(const char *window) {
         }
 
         case RE_NONE:
-            break;
+            return 0;
     }
 
     return 0;
@@ -224,6 +225,8 @@ RoastDisplay::ShowOverlay() {
                 break;
             case RE_METAL:
                 ImGui::Text("Roast [METAL]");
+                break;
+            case RE_NONE:
                 break;
         }
         ImGui::Separator();

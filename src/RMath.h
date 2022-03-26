@@ -55,22 +55,26 @@ Vector3DData {
         data[2] = .0;
     }
 
-    float &operator[](int i) {
+    float &operator
+    [](int i) {
         return (&data[0])[i];
     }
 
-    const float &operator[](int i) const {
+    const float &operator
+    [](int i) const {
         return ((&data[0])[i]);
     }
 
-    Vector3DData& operator *= (float s) {
+    Vector3DData& operator
+    *= (float s) {
         data[0] *= s;
         data[1] *= s;
         data[2] *= s;
         return (*this);
     }
 
-    Vector3DData& operator /= (float s) {
+    Vector3DData& operator
+    /= (float s) {
         s = 1.0F / s;
         data[0] *= s;
         data[1] *= s;
@@ -80,23 +84,28 @@ Vector3DData {
 
 } Vector3;
 
-inline Vector3DData operator *(const Vector3DData& vector, float s) {
+inline Vector3DData operator
+* (const Vector3DData& vector, float s) {
     return (Vector3DData(vector[0] * s, vector[1] * s, vector[2] * s));
 }
 
-inline Vector3DData operator / (const Vector3DData& v, float s) {
+inline Vector3DData operator
+/ (const Vector3DData& v, float s) {
     s = 1.0F / s;
     return (Vector3DData(v[0] * s , v[1] * s, v[2] * s));
 }
 
-inline Vector3DData operator -(const Vector3DData& v) {
+inline Vector3DData
+operator -(const Vector3DData& v) {
     return (Vector3DData(-v[0], - v[1], -v[2]));
 }
 
-inline float Magintude(const Vector3DData v) {
+inline float
+Magintude(const Vector3DData v) {
     return (sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]));
 }
 
-inline Vector3DData Normalized(const Vector3DData& v) {
+inline Vector3DData
+Normalized(const Vector3DData& v) {
     return (v / Magintude(v));
 }

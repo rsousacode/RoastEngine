@@ -152,8 +152,7 @@ VkRender::listHasExtension(std::vector<VkExtensionProperties> &extensions, const
 void
 VkRender::cleanup() {
     vkDeviceWaitIdle(mainDevice.logicalDevice);
-    vkDestroySemaphore(mainDevice.logicalDevice, renderFinish, nullptr);
-    vkDestroySemaphore(mainDevice.logicalDevice, imageAvailable, nullptr);
+    destroySemaphores();
     vkDestroyCommandPool(mainDevice.logicalDevice, graphicsCommandPool, nullptr);
     cleanFramebuffers();
     vkDestroyPipeline(mainDevice.logicalDevice, graphicsPipeline, nullptr);
@@ -1114,24 +1113,29 @@ VkRender::Draw() {
     // and signals when it has finished rendering
     // Present to screen when it has signalled finished rendering
 
+    // Wait for given fence signal from last draw before continuing
+    vkWaitForFences(mainDevice.logicalDevice, 1, &drawFences[currentFrame], VK_TRUE,
+                    std::numeric_limits<uint64_t>::max());
+    vkResetFences(mainDevice.logicalDevice, 1, &drawFences[currentFrame]);
+
     uint32_t imageIndex;
     vkAcquireNextImageKHR(mainDevice.logicalDevice, swapchainKhr, std::numeric_limits<uint64_t>::max(),
-                          imageAvailable, VK_NULL_HANDLE, &imageIndex);
+                          imageAvailable[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     VkPipelineStageFlags stageFlags[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
     VkSubmitInfo submitInfo = {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
             .waitSemaphoreCount = 1,
-            .pWaitSemaphores = &imageAvailable,
+            .pWaitSemaphores = &imageAvailable[currentFrame],
             .pWaitDstStageMask = stageFlags,
             .commandBufferCount = 1,
             .pCommandBuffers = &commandBuffers[imageIndex],
             .signalSemaphoreCount = 1,
-            .pSignalSemaphores = &renderFinish
+            .pSignalSemaphores = &renderFinish[currentFrame]
     };
 
-    VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr);
+    VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, drawFences[currentFrame]);
 
     if(result != VK_SUCCESS) {
         throw std::runtime_error("Failed to submit command buffer to queue!");
@@ -1140,7 +1144,7 @@ VkRender::Draw() {
     VkPresentInfoKHR presentInfo = {
             .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
             .waitSemaphoreCount = 1,
-            .pWaitSemaphores = &renderFinish,
+            .pWaitSemaphores = &renderFinish[currentFrame],
             .swapchainCount = 1,
             .pSwapchains = &swapchainKhr,
             .pImageIndices = &imageIndex
@@ -1151,19 +1155,41 @@ VkRender::Draw() {
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create vk presentation queue");
     }
+
+    // Get Next frame (use % MAX_FRAME_DRAWS to keep value below MAX_FRAME_DRAWS)
+    currentFrame = (currentFrame + 1) % MAX_FRAME_DRAWS;
 }
 
 void
 VkRender::createSync() {
+    imageAvailable.resize(MAX_FRAME_DRAWS);
+    renderFinish.resize(MAX_FRAME_DRAWS);
+    drawFences.resize(MAX_FRAME_DRAWS);
+
     VkSemaphoreCreateInfo semaphoreCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
     };
 
-    VkResult result = vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &imageAvailable);
-    result = vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &renderFinish);
+    VkFenceCreateInfo fenceCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+            .flags = VK_FENCE_CREATE_SIGNALED_BIT
+    };
 
-    if(result != VK_SUCCESS) {
-        throw std::runtime_error("Error creating vk semaphore");
+    for (size_t i = 0; i < MAX_FRAME_DRAWS; i++) {
+        if(vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &imageAvailable[i]) != VK_SUCCESS
+        || vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &renderFinish[i]) != VK_SUCCESS
+           || vkCreateFence(mainDevice.logicalDevice, &fenceCreateInfo, nullptr, &drawFences[i]) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create semaphore and/or fence");
+        }
     }
 
+}
+
+void VkRender::destroySemaphores() {
+    for (size_t i = 0; i < MAX_FRAME_DRAWS; i++)
+    {
+        vkDestroySemaphore(mainDevice.logicalDevice, renderFinish[i], nullptr);
+        vkDestroySemaphore(mainDevice.logicalDevice, imageAvailable[i], nullptr);
+        vkDestroyFence(mainDevice.logicalDevice, drawFences[i], nullptr);
+    }
 }
