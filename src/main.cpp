@@ -1,10 +1,10 @@
-#include "_roast/RoastDisplay.h"
-#include "_roast/RDDefs.h"
+#include "RoastDisplay.h"
+#include "RDDefs.h"
 
 int main() {
 
     RDSetupCreateInfo createInfo{
-            .typeCompatibility      =   { .Type = RE_VULKAN },
+            .typeCompatibility      =   { .Type = RE_METAL },
             .windowTitle        =    "Roast Engine",
             .majorVersion       =    1,
             .minorVersion       =    0,

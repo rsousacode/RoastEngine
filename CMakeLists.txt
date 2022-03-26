@@ -26,15 +26,16 @@ add_executable(RoastEngine
         src/vk/VkRender.cpp
         src/vk/VkRender.h
         ${IMGUI_SRC}
-        src/_roast/RoastDisplay.mm
-        src/_roast/RoastDisplay.h
+        src/RoastDisplay.mm
+        src/RoastDisplay.h
         src/ogl/OglRender.cpp
         src/ogl/OglRender.h
         src/mtl/MtlRender.mm
         src/mtl/MtlRender.h
-        src/_roast/RDDefs.h
+        src/RDDefs.h
         deps/imgui/imgui.h
-        src/common/RDDebug.h)
+        src/common/RDDebug.h
+        src/RMath.h)
 
 
 # Engine shader compilation step

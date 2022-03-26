@@ -11,9 +11,8 @@
 #import <QuartzCore/CAMetalLayer.h>
 
 
-class MtlRender  {
+struct MtlRender  {
 
-public:
     bool initWindow(const char *wTitle, int width, int height);
 
     GLFWwindow *GetGlfwWindow();
@@ -22,7 +21,8 @@ public:
     id <MTLCommandQueue> commandQueue;
     MTLRenderPassDescriptor *renderPassDescriptor;
     id <MTLDevice> device;
-private:
+
+
     NSWindow *nswindow;
     GLFWwindow *pGlfwWindow;
 

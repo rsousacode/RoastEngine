@@ -5,9 +5,8 @@
 #define ROASTENGINE_OGLRENDERER_H
 
 
-class OglRender {
+struct OglRender {
 
-public:
     void setupAdapter();
 
     void initWindow(const char *wName, int wWidth, int wHeight);

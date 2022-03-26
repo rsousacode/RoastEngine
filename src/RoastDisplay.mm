@@ -1,8 +1,8 @@
 #include "RoastDisplay.h"
 
-#import "../mtl/MtlRender.h"
-#import "../vk/VkRender.h"
-#import "../ogl/OglRender.h"
+#import "mtl/MtlRender.h"
+#import "vk/VkRender.h"
+#import "ogl/OglRender.h"
 
 #import "imgui.h"
 #import "imgui_impl_glfw.h"

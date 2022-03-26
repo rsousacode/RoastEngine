@@ -10,9 +10,7 @@
 
 #import "RDDefs.h"
 
-class RoastDisplay {
-
-private:
+struct RoastDisplay {
 
     int windowWidth, windowHeight;
 
@@ -44,7 +42,6 @@ private:
 
     inline void ShowOverlay();
 
-public:
     void createRenderer(const RDCreateInfo& info);
 
 };
