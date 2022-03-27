@@ -1,5 +1,6 @@
 #include "RoastDisplay.h"
 #include "RDDefs.h"
+#include "RMath.h"
 
 int main() {
 

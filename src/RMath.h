@@ -5,11 +5,15 @@ Vector2DData {
     // x,y,z
     float data[2];
 
+    float &x = data[0];
+
+    float &y = data[1];
+
     Vector2DData() = default;
 
-    Vector2DData(float a, float b) {
-        data[0] = a;
-        data[1] = b;
+    Vector2DData(float x, float y) {
+        data[0] = x;
+        data[1] = y;
     }
 
     float &operator[](int i) {
@@ -101,11 +105,11 @@ operator -(const Vector3DData& v) {
 }
 
 inline float
-Magintude(const Vector3DData v) {
+Magnitude(const Vector3DData v) {
     return (sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]));
 }
 
 inline Vector3DData
 Normalized(const Vector3DData& v) {
-    return (v / Magintude(v));
+    return (v / Magnitude(v));
 }
