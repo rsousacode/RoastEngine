@@ -1,9 +1,9 @@
 #import <stdexcept>
 #include "MtlRender.h"
 #import "imgui.h"
-#import "imgui_impl_metal.h"
 #import "imgui_impl_glfw.h"
 #import "../common/RDDebug.h"
+#import "ImGuiMetal.h"
 
 
 bool MtlRender::initWindow(const char *wTitle, int width, int height) {
@@ -25,7 +25,7 @@ bool MtlRender::initWindow(const char *wTitle, int width, int height) {
     commandQueue = [device newCommandQueue];
 
     ImGui_ImplGlfw_InitForOpenGL(pGlfwWindow, true);
-    ImGui_ImplMetal_Init(device);
+    ImGuiMetal::Init(device);
 
     nswindow = glfwGetCocoaWindow(pGlfwWindow);
     layer = [CAMetalLayer layer];
@@ -76,9 +76,7 @@ bool MtlRender::initWindow(const char *wTitle, int width, int height) {
 
     return true;
 }
-void MtlRender::Render() {
 
-}
 GLFWwindow *MtlRender::GetGlfwWindow() {
     return pGlfwWindow;
 }

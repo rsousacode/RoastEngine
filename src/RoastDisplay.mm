@@ -6,8 +6,8 @@
 
 #import "imgui.h"
 #import "imgui_impl_glfw.h"
-#import "imgui_impl_metal.h"
 #import "imgui_impl_opengl3.h"
+#import "mtl/ImGuiMetal.h"
 
 void
 RoastDisplay::handleInput(GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -97,7 +97,7 @@ RoastDisplay::start(const char *window) {
             pGlfwWindow = mtlRenderer.GetGlfwWindow();
             setupInput();
 
-            if (!ImGui_ImplMetal_Init(mtlRenderer.device)) {
+            if (!ImGuiMetal::Init(mtlRenderer.device)) {
                 throw std::runtime_error("Failed to initialize metal");
             }
 
@@ -121,14 +121,14 @@ RoastDisplay::start(const char *window) {
                     [renderEncoder pushDebugGroup:@"Roast Metal"];
 
                     // Start the Dear ImGui frame
-                    ImGui_ImplMetal_NewFrame(mtlRenderer.renderPassDescriptor);
+                    ImGuiMetal::NewFrame(mtlRenderer.renderPassDescriptor);
                     ImGui_ImplGlfw_NewFrame();
                     ImGui::NewFrame();
                     RenderGUI();
 
                     // Rendering
                     ImGui::Render();
-                    ImGui_ImplMetal_RenderDrawData(ImGui::GetDrawData(), commandBuffer, renderEncoder);
+                    ImGuiMetal::RenderDrawData(ImGui::GetDrawData(), commandBuffer, renderEncoder);
 
                     [renderEncoder popDebugGroup];
                     [renderEncoder endEncoding];
