@@ -353,8 +353,7 @@ static MetalContext *g_sharedMetalContext = nil;
           commandEncoder:(id<MTLRenderCommandEncoder>)commandEncoder
      renderPipelineState:(id<MTLRenderPipelineState>)renderPipelineState
             vertexBuffer:(MetalBuffer *)vertexBuffer
-      vertexBufferOffset:(size_t)vertexBufferOffset
-{
+      vertexBufferOffset:(size_t)vertexBufferOffset {
     [commandEncoder setCullMode:MTLCullModeNone];
     [commandEncoder setDepthStencilState:g_sharedMetalContext.depthStencilState];
 
@@ -410,7 +409,12 @@ static MetalContext *g_sharedMetalContext = nil;
     MetalBuffer* vertexBuffer = [self dequeueReusableBufferOfLength:vertexBufferLength device:commandBuffer.device];
     MetalBuffer* indexBuffer = [self dequeueReusableBufferOfLength:indexBufferLength device:commandBuffer.device];
 
-    [self setupRenderState:drawData commandBuffer:commandBuffer commandEncoder:commandEncoder renderPipelineState:renderPipelineState vertexBuffer:vertexBuffer vertexBufferOffset:0];
+    [self setupRenderState:drawData
+             commandBuffer:commandBuffer
+            commandEncoder:commandEncoder
+       renderPipelineState:renderPipelineState
+              vertexBuffer:vertexBuffer
+        vertexBufferOffset:0];
 
     // Will project scissor/clipping rectangles into framebuffer space
     ImVec2 clip_off = drawData->DisplayPos;         // (0,0) unless using multi-viewports
@@ -419,12 +423,15 @@ static MetalContext *g_sharedMetalContext = nil;
     // Render command lists
     size_t vertexBufferOffset = 0;
     size_t indexBufferOffset = 0;
+
     for (int n = 0; n < drawData->CmdListsCount; n++)
     {
         const ImDrawList* cmd_list = drawData->CmdLists[n];
 
-        memcpy((char *)vertexBuffer.buffer.contents + vertexBufferOffset, cmd_list->VtxBuffer.Data, (size_t)cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
-        memcpy((char *)indexBuffer.buffer.contents + indexBufferOffset, cmd_list->IdxBuffer.Data, (size_t)cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+        memcpy((char *)vertexBuffer.buffer.contents + vertexBufferOffset, cmd_list->VtxBuffer.Data,
+               (size_t)cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+        memcpy((char *)indexBuffer.buffer.contents + indexBufferOffset, cmd_list->IdxBuffer.Data,
+               (size_t)cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
 
         for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
         {
@@ -471,7 +478,7 @@ static MetalContext *g_sharedMetalContext = nil;
                 [commandEncoder setVertexBufferOffset:(vertexBufferOffset + pcmd->VtxOffset * sizeof(ImDrawVert)) atIndex:0];
                 [commandEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
                                            indexCount:pcmd->ElemCount
-                                            indexType:sizeof(ImDrawIdx) == 2 ? MTLIndexTypeUInt16 : MTLIndexTypeUInt32
+                                            indexType:MTLIndexTypeUInt16
                                           indexBuffer:indexBuffer.buffer
                                     indexBufferOffset:indexBufferOffset + pcmd->IdxOffset * sizeof(ImDrawIdx)];
             }

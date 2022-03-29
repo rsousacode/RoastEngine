@@ -42,7 +42,7 @@ struct RoastDisplay {
 
     inline void ShowOverlay();
 
-    void createRenderer(const RDCreateInfo& info);
+    void Init(const RDCreateInfo& info);
 
 };
 

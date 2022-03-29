@@ -24,7 +24,7 @@ RoastDisplay::setupInput() {
 }
 
 void
-RoastDisplay::createRenderer(const RDCreateInfo& info) {
+RoastDisplay::Init(const RDCreateInfo& info) {
     RType = info.typeCompatibility.Type;
     windowWidth = info.windowWidth;
     windowHeight = info.windowHeight;
