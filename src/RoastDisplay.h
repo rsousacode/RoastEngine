@@ -2,7 +2,6 @@
 #ifndef ROASTENGINE_ROASTDISPLAY_H
 #define ROASTENGINE_ROASTDISPLAY_H
 
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #import<stdexcept>

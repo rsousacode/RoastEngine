@@ -39,10 +39,14 @@ endif(RD_SHELL_PATH)
 # End of Engine shader compilation step
 
 # Library Includes for Vulkan and other libraries
+include_directories(deps/glfw/include)
+
+# GLFW Includes
 include_directories(/usr/local/include/)
 
 # GLM mathematical functions
 add_subdirectory(deps/glm/)
+add_subdirectory(deps/glfw/)
 
 # Vulkan and GLFW3 for window creation
 find_package(Vulkan)
