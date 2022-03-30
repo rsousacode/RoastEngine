@@ -9,40 +9,26 @@
 #import <iostream>
 
 #import "RDDefs.h"
+#import "RMath.h"
 
 struct RoastDisplay {
 
-    int windowWidth, windowHeight;
 
     GLFWwindow *pGlfwWindow;
-
     RDType RType;
+    Vector4 clearColor = Vector4(1.0, 0.0, 0.0, 0.0);
 
-    RDImGuiState imGuiState;
-
-    int start(const char *window);
-
+    int windowWidth, windowHeight;
     int frameBufferSize[2];
-
     bool shouldHandleInput = true;
 
+     void Init(const RDCreateInfo& info, WindowCreateInfo &wCreateInfo);
+     void start(const char *window, WindowCreateInfo &wCreateInfo);
+    inline void setupInput();
     static void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods);
 
-    void setupInput();
 
-    inline void RenderGUI();
 
-    inline void CreateMenuBar();
-
-    inline void ShowConsole();
-
-    inline void ShowRinfo();
-
-    inline void ShowRInfo(RDType rdType);
-
-    inline void ShowOverlay();
-
-    void Init(const RDCreateInfo& info);
 
 };
 

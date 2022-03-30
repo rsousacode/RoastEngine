@@ -7,10 +7,6 @@
 
 struct OglRender {
 
-    void setupAdapter();
-
-    void initWindow(const char *wName, int wWidth, int wHeight);
-
     GLFWwindow *GetGlfwWindow();
 
     GLFWwindow *glfwWindow;

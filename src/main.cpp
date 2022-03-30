@@ -4,7 +4,7 @@
 
 int main() {
 
-    RDSetupCreateInfo createInfo{
+    SetupCreateInfo createInfo{
             .typeCompatibility      =   { .Type = RE_METAL },
             .windowTitle        =    "Roast Engine",
             .majorVersion       =    1,
@@ -14,8 +14,14 @@ int main() {
             .windowHeight       =    900,
     };
 
+    WindowCreateInfo windowCreateInfo = {
+            .showTitleBar = true,
+            .transparentTitleBar = false,
+            .fullContentView = true
+    };
+
     RoastDisplay display;
-    display.Init(createInfo);
+    display.Init(createInfo, windowCreateInfo);
 
     return 0;
 }

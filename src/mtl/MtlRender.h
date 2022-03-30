@@ -9,24 +9,26 @@
 
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
+#import "../RDDefs.h"
 
 
 struct MtlRender  {
 
-    bool initWindow(const char *wTitle, int width, int height);
 
-    GLFWwindow *GetGlfwWindow();
+    [[nodiscard]] GLFWwindow *GetGlfwWindow() const;
 
     CAMetalLayer *layer;
     id <MTLCommandQueue> commandQueue;
     MTLRenderPassDescriptor *renderPassDescriptor;
     id <MTLDevice> device;
 
-
     NSWindow *nswindow;
     GLFWwindow *pGlfwWindow;
 
-    void Render();
+
+    void initWindow(const char *wTitle, int width, int height, WindowCreateInfo &wCreateInfo);
+
+     void SetupNSWindow(WindowCreateInfo &wCreateInfo);
 };
 
 

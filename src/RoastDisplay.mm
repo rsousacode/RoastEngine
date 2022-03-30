@@ -21,15 +21,15 @@ RoastDisplay::setupInput() {
 }
 
 void
-RoastDisplay::Init(const RDCreateInfo& info) {
+RoastDisplay::Init(const RDCreateInfo& info, WindowCreateInfo &wCreateInfo) {
     RType = info.typeCompatibility.Type;
     windowWidth = info.windowWidth;
     windowHeight = info.windowHeight;
-    start(info.windowTitle);
+    start(info.windowTitle, wCreateInfo);
 }
 
-int
-RoastDisplay::start(const char *window) {
+void
+RoastDisplay::start(const char *window , WindowCreateInfo &wCreateInfo) {
     switch (RType) {
         case RE_OPENGL: {
             OglRender oglRender{};
@@ -39,8 +39,8 @@ RoastDisplay::start(const char *window) {
 
 
             while (!glfwWindowShouldClose(pGlfwWindow)) {
-                Vector4 clear_color = Vector4(imGuiState.clearColor[0], imGuiState.clearColor[1],
-                                            imGuiState.clearColor[2], imGuiState.clearColor[3]);
+                Vector4 clear_color = Vector4(clearColor.x, clearColor.y,
+                                            clearColor.z, clearColor.w);
                 glfwPollEvents();
 
                 // Initiate frame
@@ -61,8 +61,9 @@ RoastDisplay::start(const char *window) {
             glfwDestroyWindow(pGlfwWindow);
             glfwTerminate();
 
-            return oglRender.finish();
+            oglRender.finish();
         }
+        break;
         case RE_VULKAN: {
             VkRender vkRenderer{};
             vkRenderer.setupAdapter();
@@ -71,7 +72,7 @@ RoastDisplay::start(const char *window) {
             setupInput();
 
             if (vkRenderer.init(pGlfwWindow) == EXIT_FAILURE) {
-                return EXIT_FAILURE;
+                throw std::runtime_error("Failed to init glfw");
             }
 
             while (!glfwWindowShouldClose(pGlfwWindow)) {
@@ -81,11 +82,11 @@ RoastDisplay::start(const char *window) {
 
             vkRenderer.cleanup();
         }
-        return 0;
+        break;
 
         case RE_METAL: {
             MtlRender mtlRenderer{};
-            mtlRenderer.initWindow(window, windowWidth, windowHeight);
+            mtlRenderer.initWindow(window, windowWidth, windowHeight, wCreateInfo);
             pGlfwWindow = mtlRenderer.GetGlfwWindow();
             setupInput();
 
@@ -100,8 +101,8 @@ RoastDisplay::start(const char *window) {
                     id <MTLCommandBuffer> commandBuffer = [mtlRenderer.commandQueue commandBuffer];
 
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(
-                            imGuiState.clearColor[0], imGuiState.clearColor[1],
-                            imGuiState.clearColor[2], imGuiState.clearColor[3]);;
+                            clearColor.x, clearColor.y,
+                            clearColor.z, clearColor.w);;
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
                     mtlRenderer.renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
@@ -122,10 +123,10 @@ RoastDisplay::start(const char *window) {
             glfwDestroyWindow(pGlfwWindow);
             glfwTerminate();
         }
+        break;
 
         case RE_NONE:
-            return 0;
+            break;
     }
 
-    return 0;
 }

@@ -2,14 +2,14 @@
 #include "MtlRender.h"
 #import "../common/RDDebug.h"
 
-
-bool MtlRender::initWindow(const char *wTitle, int width, int height) {
+ void
+MtlRender::initWindow(const char *wTitle, int width, int height, WindowCreateInfo &wCreateInfo) {
     // Initialize System
 
     glfwSetErrorCallback(RDDebug::glfwErrorCallback);
 
     if (glfwInit() == GLFW_FALSE) {
-        return false;
+        throw std::runtime_error("Failed to init glfw");
     }
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -21,17 +21,37 @@ bool MtlRender::initWindow(const char *wTitle, int width, int height) {
     // Init Render options
 
     nswindow = glfwGetCocoaWindow(pGlfwWindow);
+    SetupNSWindow(wCreateInfo);
     layer = [CAMetalLayer layer];
     layer.device = device;
     layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-    nswindow.contentView.layer = layer;
-    nswindow.contentView.wantsLayer = YES;
+
 
     renderPassDescriptor = [MTLRenderPassDescriptor new];
 
-    return true;
 }
 
-GLFWwindow *MtlRender::GetGlfwWindow() {
+inline void
+MtlRender::SetupNSWindow(WindowCreateInfo &wCreateInfo) {
+    nswindow.contentView.layer = layer;
+    nswindow.titlebarAppearsTransparent = wCreateInfo.transparentTitleBar;
+    if(wCreateInfo.showTitleBar) {
+        nswindow.titleVisibility = NSWindowTitleVisible ;
+    } else {
+        nswindow.titleVisibility = NSWindowTitleHidden;
+    }
+
+    if(wCreateInfo.fullContentView) {
+        nswindow.titlebarAppearsTransparent = true;
+        nswindow.titleVisibility = NSWindowTitleHidden;
+        nswindow.styleMask += NSWindowStyleMaskFullSizeContentView;
+
+    }
+    nswindow.alphaValue = 0.8f;
+    nswindow.contentView.wantsLayer = YES;
+}
+
+GLFWwindow
+*MtlRender::GetGlfwWindow() const {
     return pGlfwWindow;
 }

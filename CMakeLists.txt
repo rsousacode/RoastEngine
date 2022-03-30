@@ -21,7 +21,6 @@ add_executable(RoastEngine
         src/mtl/MtlRender.mm
         src/mtl/MtlRender.h
         src/RDDefs.h
-        deps/imgui/imgui.h
         src/common/RDDebug.h
         src/RMath.h)
 

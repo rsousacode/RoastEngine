@@ -23,11 +23,21 @@ typedef struct RDCreateInfo {
     [[maybe_unused]] const char *branch = "rc";
     int windowWidth = 1080;
     int windowHeight = 610;
-} RDSetupCreateInfo;
+} SetupCreateInfo;
 
-typedef struct RDGuiState {
-    bool showDemoWindow = false;
-    float clearColor[4]  = {0.12f, 0.12f, 0.12f, 1.00f};;
-    bool showRenderInfo = false;
-    bool showOverlay = true;
-} RDImGuiState;
+typedef
+struct RDWindowCreateInfo {
+    // Shows or hides title bar on MacOS
+    // in the future this option should apply to other OS's as well
+    bool showTitleBar = true;
+    bool transparentTitleBar = false;
+
+    // Applies only on mac,
+    // Means no title bar visible, only the close, minimize and maximize icons
+    bool fullContentView = false;
+
+    // Alpha value of the window itself
+    float alphaValue = 1;
+
+} WindowCreateInfo;
+
