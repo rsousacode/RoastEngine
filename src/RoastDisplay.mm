@@ -4,10 +4,6 @@
 #import "vk/VkRender.h"
 #import "ogl/OglRender.h"
 
-#import "imgui.h"
-#import "imgui_impl_glfw.h"
-#import "imgui_impl_opengl3.h"
-#import "mtl/ImGuiMetal.h"
 
 void
 RoastDisplay::handleInput(GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -45,26 +41,21 @@ RoastDisplay::start(const char *window) {
                 ImVec4 clear_color = ImVec4(imGuiState.clearColor[0], imGuiState.clearColor[1],
                                             imGuiState.clearColor[2], imGuiState.clearColor[3]);
                 glfwPollEvents();
-                ImGui_ImplOpenGL3_NewFrame();
-                ImGui_ImplGlfw_NewFrame();
-                ImGui::NewFrame();
 
-                RenderGUI();
-                // Rendering
-                ImGui::Render();
+                // Initiate frame
+                // Render frame
+
                 glfwGetFramebufferSize(pGlfwWindow, &frameBufferSize[0], &frameBufferSize[1]);
                 glViewport(0, 0, frameBufferSize[0], frameBufferSize[1]);
                 glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
                              clear_color.z * clear_color.w, clear_color.w);
                 glClear(GL_COLOR_BUFFER_BIT);
-                ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+                // Render draw data
                 glfwSwapBuffers(pGlfwWindow);
             }
 
             // Cleanup
-            ImGui_ImplOpenGL3_Shutdown();
-            ImGui_ImplGlfw_Shutdown();
-            ImGui::DestroyContext();
 
             glfwDestroyWindow(pGlfwWindow);
             glfwTerminate();
@@ -97,10 +88,6 @@ RoastDisplay::start(const char *window) {
             pGlfwWindow = mtlRenderer.GetGlfwWindow();
             setupInput();
 
-            if (!ImGuiMetal::Init(mtlRenderer.device)) {
-                throw std::runtime_error("Failed to initialize metal");
-            }
-
             while (!glfwWindowShouldClose(pGlfwWindow)) {
                 glfwPollEvents();
 
@@ -120,15 +107,8 @@ RoastDisplay::start(const char *window) {
                     id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:mtlRenderer.renderPassDescriptor];
                     [renderEncoder pushDebugGroup:@"Roast Metal"];
 
-                    // Start the Dear ImGui frame
-                    ImGuiMetal::NewFrame(mtlRenderer.renderPassDescriptor);
-                    ImGui_ImplGlfw_NewFrame();
-                    ImGui::NewFrame();
-                    RenderGUI();
-
-                    // Rendering
-                    ImGui::Render();
-                    ImGuiMetal::RenderDrawData(ImGui::GetDrawData(), commandBuffer, renderEncoder);
+                    // Start frame
+                    // Render frame
 
                     [renderEncoder popDebugGroup];
                     [renderEncoder endEncoding];
@@ -147,147 +127,4 @@ RoastDisplay::start(const char *window) {
     }
 
     return 0;
-}
-
-inline void
-RoastDisplay::RenderGUI() {
-
-    CreateMenuBar();
-
-    ShowOverlay();
-
-    if(imGuiState.showDemoWindow) {
-        ImGui::ShowDemoWindow(&imGuiState.showDemoWindow);
-    }
-
-    if(imGuiState.showRenderInfo) {
-        ShowRInfo( RType);
-
-    }
-
-}
-
-inline void
-RoastDisplay::ShowRInfo(RDType rdType) {
-
-    ImGui::Begin("Render Info", &imGuiState.showRenderInfo, ImGuiWindowFlags_NoCollapse);
-    ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
-
-
-    ImGui::ColorEdit3("Clear color", (float*)&imGuiState.clearColor); // Edit 3 floats representing a color
-
-    ImGui::Spacing();
-
-    ImGui::Text("Frame buffer width %d", frameBufferSize[0]);
-    ImGui::Text("Frame buffer height %d", frameBufferSize[1]);
-
-
-    ImGui::End();
-}
-
-
-inline void
-RoastDisplay::ShowConsole() {
-
-}
-
-inline void
-RoastDisplay::ShowOverlay() {
-    static int corner = 2;
-    ImGuiIO& io = ImGui::GetIO();
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-    if (corner != -1)
-    {
-        const float PAD = 10.0f;
-        const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImVec2 work_pos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
-        ImVec2 work_size = viewport->WorkSize;
-        ImVec2 window_pos, window_pos_pivot;
-        window_pos.x = (corner & 1) ? (work_pos.x + work_size.x - PAD) : (work_pos.x + PAD);
-        window_pos.y = (corner & 2) ? (work_pos.y + work_size.y - PAD) : (work_pos.y + PAD);
-        window_pos_pivot.x = (corner & 1) ? 1.0f : 0.0f;
-        window_pos_pivot.y = (corner & 2) ? 1.0f : 0.0f;
-        ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-        ImGui::SetNextWindowViewport(viewport->ID);
-        window_flags |= ImGuiWindowFlags_NoMove;
-    }
-    ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
-    if (ImGui::Begin("Example: Simple overlay", &imGuiState.showOverlay, window_flags))
-    {
-
-        switch (RType) {
-
-            case RE_VULKAN:
-                ImGui::Text("ROAST [VULKAN]");
-                break;
-            case RE_OPENGL:
-                ImGui::Text("Roast- [OPEN GL]");
-                break;
-            case RE_METAL:
-                ImGui::Text("Roast [METAL]");
-                break;
-            case RE_NONE:
-                break;
-        }
-        ImGui::Separator();
-
-        ImGui::Text("IMGUI FPS: %.1f", ImGui::GetIO().Framerate);
-
-        if (ImGui::BeginPopupContextWindow())
-        {
-            if (ImGui::MenuItem("Custom",       NULL, corner == -1)) corner = -1;
-            if (ImGui::MenuItem("Top-left",     NULL, corner == 0)) corner = 0;
-            if (ImGui::MenuItem("Top-right",    NULL, corner == 1)) corner = 1;
-            if (ImGui::MenuItem("Bottom-left",  NULL, corner == 2)) corner = 2;
-            if (ImGui::MenuItem("Bottom-right", NULL, corner == 3)) corner = 3;
-            if (imGuiState.showOverlay && ImGui::MenuItem("Close")) *&imGuiState.showOverlay = false;
-            ImGui::EndPopup();
-        }
-    }
-    ImGui::End();
-}
-
-inline void
-RoastDisplay::CreateMenuBar() {
-
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("File"))
-        {
-            if (ImGui::MenuItem("Open"))
-            {
-            }
-
-            if (ImGui::MenuItem("New Project"))
-            {
-            }
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu("Help"))
-        {
-            if (ImGui::MenuItem("Console"))
-            {
-                ShowConsole();
-            }
-
-            if (ImGui::MenuItem("Render Info"))
-            {
-                ShowRinfo();
-            }
-
-            if (ImGui::MenuItem("Show Demo"))
-            {
-                imGuiState.showDemoWindow = !imGuiState.showDemoWindow;
-            }
-
-            ImGui::EndMenu();
-        }
-
-
-        ImGui::EndMainMenuBar();
-    }
-}
-
-void RoastDisplay::ShowRinfo() {
-    imGuiState.showRenderInfo = !imGuiState.showRenderInfo;
 }
