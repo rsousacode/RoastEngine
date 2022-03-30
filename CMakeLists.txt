@@ -9,24 +9,11 @@ set(CMAKE_CXX_STANDARD 23)
 link_directories(/usr/local/lib)
 link_libraries(/usr/local/lib)
 
-include_directories(deps/imgui)
-include_directories(deps/imgui/backends)
-
-file( GLOB IMGUI_SRC
-        deps/imgui/*.h
-        deps/imgui/*.cpp
-        deps/imgui/backends/imgui_impl_glfw.*
-        deps/imgui/backends/imgui_impl_opengl3.*
-        )
-
 # Source Files
 add_executable(RoastEngine
         src/main.cpp
         src/vk/VkRender.cpp
         src/vk/VkRender.h
-        src/mtl/ImGuiMetal.h
-        src/mtl/ImGuiMetal.mm
-        ${IMGUI_SRC}
         src/RoastDisplay.mm
         src/RoastDisplay.h
         src/ogl/OglRender.cpp

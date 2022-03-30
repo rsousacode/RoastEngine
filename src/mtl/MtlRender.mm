@@ -1,16 +1,12 @@
 #import <stdexcept>
 #include "MtlRender.h"
-#import "imgui.h"
-#import "imgui_impl_glfw.h"
 #import "../common/RDDebug.h"
-#import "ImGuiMetal.h"
 
 
 bool MtlRender::initWindow(const char *wTitle, int width, int height) {
 
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark();
+
+    // Initialize System
 
     glfwSetErrorCallback(RDDebug::glfwErrorCallback);
 
@@ -24,8 +20,7 @@ bool MtlRender::initWindow(const char *wTitle, int width, int height) {
     device = MTLCreateSystemDefaultDevice();
     commandQueue = [device newCommandQueue];
 
-    ImGui_ImplGlfw_InitForOpenGL(pGlfwWindow, true);
-    ImGuiMetal::Init(device);
+    // Init Render options
 
     nswindow = glfwGetCocoaWindow(pGlfwWindow);
     layer = [CAMetalLayer layer];
@@ -71,8 +66,6 @@ bool MtlRender::initWindow(const char *wTitle, int width, int height) {
     id<MTLRenderPipelineState> rps = [device newRenderPipelineStateWithDescriptor:rpd error:NULL];
 
     renderPassDescriptor = [MTLRenderPassDescriptor new];
-
-    IMGUI_CHECKVERSION();
 
     return true;
 }

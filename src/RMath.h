@@ -1,115 +1,62 @@
 #include <math.h>
 
-typedef struct
-Vector2DData {
-    // x,y,z
-    float data[2];
+// Vector with 4 dimensions
+struct Vector4 {
+    float x, y, z, w;
+    constexpr Vector4() : x(0.0001f), y(0.0001f), z(0.0001f), w(0.0001f) {}
+    constexpr Vector4(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w) {}
+};
 
-    float &x = data[0];
-
-    float &y = data[1];
-
-    Vector2DData() = default;
-
-    Vector2DData(float x, float y) {
-        data[0] = x;
-        data[1] = y;
-    }
-
-    float &operator[](int i) {
-        return (&data[0])[i];
-    }
+// Vector with 3 dimensions
+struct Vector3 {
+    float x, y, z;
+    constexpr Vector3() : x(0.0001f), y(0.0001f), z(0.0001f) {}
+    constexpr Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
 
     const float &operator[](int i) const {
-        return ((&data[0])[i]);
+        return (&x)[i];
     }
 
-    Vector2DData& operator *= (float s) {
-        data[0] *= s;
-        data[1] *= s;
+    constexpr Vector3 &operator*=(float s) {
+        x *= s;
+        y *= s;
+        z *= s;
         return (*this);
     }
 
-    Vector2DData& operator /= (float s) {
+    constexpr Vector3 &operator/=(float s) {
         s = 1.0F / s;
-        data[0] *= s;
-        data[1] *= s;
+        x *= s;
+        y *= s;
+        z *= s;
         return (*this);
     }
 
-} Vector2;
 
+};
 
-typedef struct
-Vector3DData {
-    // x,y,z
-    float data[3];
-
-    Vector3DData() = default;
-
-    Vector3DData(float a, float b, float c) {
-        data[0] = a;
-        data[1] = b;
-        data[2] = c;
-    }
-
-    Vector3DData(Vector2DData vector2) {
-        data[0] = vector2.data[0];
-        data[1] = vector2.data[1];
-        data[2] = .0;
-    }
-
-    float &operator
-    [](int i) {
-        return (&data[0])[i];
-    }
-
-    const float &operator
-    [](int i) const {
-        return ((&data[0])[i]);
-    }
-
-    Vector3DData& operator
-    *= (float s) {
-        data[0] *= s;
-        data[1] *= s;
-        data[2] *= s;
-        return (*this);
-    }
-
-    Vector3DData& operator
-    /= (float s) {
-        s = 1.0F / s;
-        data[0] *= s;
-        data[1] *= s;
-        data[2] *= s;
-        return (*this);
-    }
-
-} Vector3;
-
-inline Vector3DData operator
-* (const Vector3DData& vector, float s) {
-    return (Vector3DData(vector[0] * s, vector[1] * s, vector[2] * s));
+inline Vector3 operator
+*(const Vector3 &vector, float s) {
+    return (Vector3(vector.x * s, vector.y * s, vector.z * s));
 }
 
-inline Vector3DData operator
-/ (const Vector3DData& v, float s) {
+inline Vector3 operator
+/(const Vector3 &v, float s) {
     s = 1.0F / s;
-    return (Vector3DData(v[0] * s , v[1] * s, v[2] * s));
+    return (Vector3(v.x * s, v.y * s, v.z * s));
 }
 
-inline Vector3DData
-operator -(const Vector3DData& v) {
-    return (Vector3DData(-v[0], - v[1], -v[2]));
+inline Vector3
+operator-(const Vector3 &v) {
+    return (Vector3(-v.x, -v.y, -v.z));
 }
 
 inline float
-Magnitude(const Vector3DData v) {
-    return (sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]));
+Magnitude(const Vector3 v) {
+    return (sqrt(v.x * v.x + v.y * v.y + v.z * v.z));
 }
 
-inline Vector3DData
-Normalized(const Vector3DData& v) {
+inline Vector3
+Normalized(const Vector3 &v) {
     return (v / Magnitude(v));
 }

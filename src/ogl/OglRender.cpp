@@ -1,21 +1,12 @@
 #include "OglRender.h"
 #import <GLFW/glfw3.h>
-#import "imgui.h"
-#import "imgui_impl_opengl3.h"
-#import "imgui_impl_glfw.h"
 #import "../common/RDDebug.h"
 #import<stdexcept>
 
 void OglRender::setupAdapter(const char *wName, int wWidth, int wHeight) {
     glfwInit();
     // Decide GL+GLSL versions
-#if defined(IMGUI_IMPL_OPENGL_ES2)
-    // GL ES 2.0 + GLSL 100
-    const char* glsl_version = "#version 100";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
     // GL 3.2 + GLSL 150
     const char* glsl_version = "#version 150";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -40,22 +31,7 @@ void OglRender::setupAdapter(const char *wName, int wWidth, int wHeight) {
     glfwWindow = glfwCreateWindow(wWidth, wHeight, wName, nullptr, nullptr);
     glfwMakeContextCurrent(glfwWindow);
 
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
-    ImGui_ImplOpenGL3_Init("#version 150");
-
-
+    // Create Render context
 
 
 }

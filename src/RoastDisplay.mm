@@ -3,6 +3,7 @@
 #import "mtl/MtlRender.h"
 #import "vk/VkRender.h"
 #import "ogl/OglRender.h"
+#import "RMath.h"
 
 
 void
@@ -38,7 +39,7 @@ RoastDisplay::start(const char *window) {
 
 
             while (!glfwWindowShouldClose(pGlfwWindow)) {
-                ImVec4 clear_color = ImVec4(imGuiState.clearColor[0], imGuiState.clearColor[1],
+                Vector4 clear_color = Vector4(imGuiState.clearColor[0], imGuiState.clearColor[1],
                                             imGuiState.clearColor[2], imGuiState.clearColor[3]);
                 glfwPollEvents();
 
