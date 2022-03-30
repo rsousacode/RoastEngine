@@ -45,9 +45,8 @@ MtlRender::SetupNSWindow(WindowCreateInfo &wCreateInfo) {
         nswindow.titlebarAppearsTransparent = true;
         nswindow.titleVisibility = NSWindowTitleHidden;
         nswindow.styleMask += NSWindowStyleMaskFullSizeContentView;
-
     }
-    nswindow.alphaValue = 0.8f;
+    nswindow.alphaValue = wCreateInfo.alphaValue;
     nswindow.contentView.wantsLayer = YES;
 }
 

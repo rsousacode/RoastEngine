@@ -14,11 +14,7 @@ int main() {
             .windowHeight       =    900,
     };
 
-    WindowCreateInfo windowCreateInfo = {
-            .showTitleBar = true,
-            .transparentTitleBar = false,
-            .fullContentView = true
-    };
+    WindowCreateInfo windowCreateInfo = {};
 
     RoastDisplay display;
     display.Init(createInfo, windowCreateInfo);
