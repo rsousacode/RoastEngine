@@ -7,13 +7,12 @@
 
 struct OglRender {
 
-    GLFWwindow *GetGlfwWindow();
-
-    GLFWwindow *glfwWindow;
 
     void setupAdapter(const char *wName, int wWidth, int wHeight);
 
-    int finish();
+    void draw();
+
+    void preSetup();
 };
 
 #endif //ROASTENGINE_OGLRENDERER_H

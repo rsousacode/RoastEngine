@@ -16,8 +16,14 @@ add_executable(RoastEngine
         src/vk/VkRender.h
         src/RoastDisplay.mm
         src/RoastDisplay.h
+        src/ogl/LoadShaders.h
+        src/ogl/LoadShaders.cpp
+
+        src/ogl/vgl.h
+
         src/ogl/OglRender.cpp
         src/ogl/OglRender.h
+
         src/mtl/MtlRender.mm
         src/mtl/MtlRender.h
         src/RDDefs.h
@@ -43,6 +49,9 @@ include_directories(deps/glfw/include)
 
 # GLFW Includes
 include_directories(/usr/local/include/)
+
+# GL3W Includes
+include_directories(deps/gl3w/include)
 
 # GLM mathematical functions
 add_subdirectory(deps/glm/)

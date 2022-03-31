@@ -607,7 +607,7 @@ void VkRender::createRenderPass()
     subpass.pColorAttachments = &colourAttachmentReference;
 
     // Need to determine when layout transitions occur using subpass dependencies
-    std::array<VkSubpassDependency, 2> subpassDependencies;
+    std::array<VkSubpassDependency, 2> subpassDependencies{};
 
     // Conversion from VK_IMAGE_LAYOUT_UNDEFINED to VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
     // Transition must happen after...
@@ -649,7 +649,7 @@ void VkRender::createRenderPass()
     }
 }
 
-#import <fstream>
+#include <fstream>
  std::vector<char> VkRender::readShaderFile(const std::string &filename) {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     if (!file.is_open()){

@@ -101,7 +101,7 @@ private:
     bool                                    listHasExtension                (std::vector<VkExtensionProperties> &extensions,
                                                                              const char *const &checkExtension) const;
     std::vector<VkDeviceQueueCreateInfo>    generateQueueCreateInfos();
-    std::vector<VkExtensionProperties>      generateExtensionProperties(VkPhysicalDevice device);
+    static std::vector<VkExtensionProperties>      generateExtensionProperties(VkPhysicalDevice device);
     std::vector<VkExtensionProperties>      getExtensionProperties(uint32_t &extensionCount) const;
     std::vector<VkPhysicalDevice>           getdeviceList(uint32_t &deviceCount) const;
 

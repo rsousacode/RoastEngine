@@ -2,45 +2,79 @@
 #import <GLFW/glfw3.h>
 #import "../common/RDDebug.h"
 #import<stdexcept>
+#include <iostream>
+#include "LoadShaders.h"
+#include "vgl.h"
 
+
+
+const GLuint Triangles_ID = 0;
+const GLuint NumVAOs = 3;
+
+const GLuint Buffer_ID = 0;
+const GLuint NumBuffer = 3;
+const GLuint vPosition = 0;
+const GLuint NumVertices = 6;
+
+GLuint VAOs[NumVAOs];
+GLuint Buffers[NumBuffer];
+
+void OglRender::preSetup() {
+
+}
 void OglRender::setupAdapter(const char *wName, int wWidth, int wHeight) {
-    glfwInit();
-    // Decide GL+GLSL versions
-#if defined(__APPLE__)
-    // GL 3.2 + GLSL 150
-    const char* glsl_version = "#version 150";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
-#else
-    // GL 3.0 + GLSL 130
-    const char* glsl_version = "#version 130";
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
-#endif
+    static const GLfloat vertices[NumVertices][3] {
+            {-.90, -.90, .5},
+            {.85, -.90, 0.5},
+            {-.90, -.85, .5},
+            {.90, .90, .5},
+            {-.85, .90, .5},
 
-    glfwSetErrorCallback(RDDebug::glfwErrorCallback);
+    };
 
-    auto initResult = glfwInit();
-    if (initResult == GLFW_FALSE) {
-        throw std::runtime_error("GLFW Failed to setupCocoa");
-    }
-    glfwWindow = glfwCreateWindow(wWidth, wHeight, wName, nullptr, nullptr);
-    glfwMakeContextCurrent(glfwWindow);
+// glGen*, glBind*
+    // create vaos and bind selected vaos to context
+    // return NumVAOS unused names for use as vaos in VAOs array
+    glGenVertexArrays(NumVAOs, VAOs);
+    // attach this vao to opengl context before use
+    glBindVertexArray(VAOs[Triangles_ID]);
+    GLboolean isVertexArray = glIsVertexArray(VAOs[Triangles_ID]);
+    std::string output = isVertexArray == GL_TRUE? "yes" : "no";
+    std::cout << "is vertex array? " << output << std::endl;
 
-    // Create Render context
+    // create names of vertex-buffer objects
+    glGenBuffers(NumBuffer, Buffers);
+    glBindBuffer(GL_ARRAY_BUFFER, Buffers[Buffer_ID]);
+    // loading data(vertices) into buffer
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    // init shaders
+    ShaderInfo  shaders[] =
+            {
+                    {GL_VERTEX_SHADER, "triangles.vert"},
+                    {GL_FRAGMENT_SHADER, "triangles.frag"},
+                    {GL_NONE, NULL}
+            };
+
+    GLuint program = LoadShaders(shaders);
+    glUseProgram(program);
+
+    // put buffer into VAO attributes position
+    glVertexAttribPointer(vPosition, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    glEnableVertexAttribArray(vPosition);
 
 }
 
-GLFWwindow *OglRender::GetGlfwWindow() {
-    return glfwWindow;
+void draw() {
+    static const float black[] = {0.0f, 0.0f, 0.0f, 0.0f};
+    glClearBufferfv(GL_COLOR, 0, black);
+    glBindVertexArray(VAOs[Triangles_ID]);
+    glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 }
 
-int
-OglRender::finish() {
-    return 0;
+void OglRender::draw() {
+    static const float black[] = {0.0f, 0.0f, 0.0f, 0.0f};
+    glClearBufferfv(GL_COLOR, 0, black);
+    glBindVertexArray(VAOs[Triangles_ID]);
+    glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 }

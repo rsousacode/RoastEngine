@@ -1,5 +1,4 @@
 #include "RoastDisplay.h"
-
 #import "mtl/MtlRender.h"
 #import "vk/VkRender.h"
 #import "ogl/OglRender.h"
@@ -33,35 +32,49 @@ RoastDisplay::start(const char *window , WindowCreateInfo &wCreateInfo) {
     switch (RType) {
         case RE_OPENGL: {
             OglRender oglRender{};
+
+            auto r = glfwInit();
+            if(r == GLFW_FALSE) {
+                throw std::runtime_error("Failed to init GLFW");
+            }
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+
+            // return a window
+            // also create a OpenGL context associated with this window
+            pGlfwWindow = glfwCreateWindow(600, 600, "my triangle app", nullptr, nullptr);
+            // make the context of this window current for main thread
+            glfwMakeContextCurrent(pGlfwWindow);
+
             oglRender.setupAdapter(window, windowWidth, windowHeight);
-            pGlfwWindow = oglRender.GetGlfwWindow();
-            setupInput();
 
+            while (!glfwWindowShouldClose(pGlfwWindow))
+            {
 
-            while (!glfwWindowShouldClose(pGlfwWindow)) {
-                Vector4 clear_color = Vector4(clearColor.x, clearColor.y,
-                                            clearColor.z, clearColor.w);
                 glfwPollEvents();
 
                 // Initiate frame
                 // Render frame
-
-                glfwGetFramebufferSize(pGlfwWindow, &frameBufferSize[0], &frameBufferSize[1]);
-                glViewport(0, 0, frameBufferSize[0], frameBufferSize[1]);
-                glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
-                             clear_color.z * clear_color.w, clear_color.w);
+                glClearColor(clearColor.x * clearColor.w, clearColor.y * clearColor.w,
+                             clearColor.z * clearColor.w, clearColor.w);
                 glClear(GL_COLOR_BUFFER_BIT);
+                // display
+                oglRender.draw();
 
-                // Render draw data
+                // swap the front and back buffers
                 glfwSwapBuffers(pGlfwWindow);
+                // poll all pending events and process
+                glfwPollEvents();
             }
 
-            // Cleanup
-
+            //glDeleteVertexArrays(NumVAOs, VAOs);
             glfwDestroyWindow(pGlfwWindow);
             glfwTerminate();
 
-            oglRender.finish();
+
+
         }
         break;
         case RE_VULKAN: {
