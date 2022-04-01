@@ -2,87 +2,46 @@
 #import "mtl/MtlRender.h"
 #import "vk/VkRender.h"
 #import "ogl/OglRender.h"
-#import "RMath.h"
 
-
-void
-RoastDisplay::handleInput(GLFWwindow *window, int key, int scancode, int action, int mods) {
+void keyCb (GLFWwindow *window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
 }
 
 void
-RoastDisplay::setupInput() {
-    if (shouldHandleInput) {
-        glfwSetKeyCallback(pGlfwWindow, handleInput);
-    }
-}
-
-void
-RoastDisplay::Init(const RDCreateInfo& info, WindowCreateInfo &wCreateInfo) {
-    RType = info.typeCompatibility.Type;
-    windowWidth = info.windowWidth;
-    windowHeight = info.windowHeight;
-    start(info.windowTitle, wCreateInfo);
-}
-
-void
-RoastDisplay::start(const char *window , WindowCreateInfo &wCreateInfo) {
-    switch (RType) {
+RoastDisplay::Init(const RDCreateInfo& info, const RDWindowCreateInfo &wCreateInfo) {
+    switch (info.typeCompatibility.Type) {
         case RE_OPENGL: {
             OglRender oglRender{};
-
-            auto r = glfwInit();
-            if(r == GLFW_FALSE) {
-                throw std::runtime_error("Failed to init GLFW");
-            }
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-
-            // return a window
-            // also create a OpenGL context associated with this window
-            pGlfwWindow = glfwCreateWindow(600, 600, "my triangle app", nullptr, nullptr);
-            // make the context of this window current for main thread
-            glfwMakeContextCurrent(pGlfwWindow);
-
-            oglRender.setupAdapter(window, windowWidth, windowHeight);
-
+            oglRender.prepare(wCreateInfo, info , keyCb);
+            oglRender.prepareNextRender();
+            pGlfwWindow = oglRender.pGlfwWindow;
+            // Game loop
             while (!glfwWindowShouldClose(pGlfwWindow))
             {
-
+                // Check if any events have been activated (key pressed, mouse moved etc.) and call corresponding response functions
                 glfwPollEvents();
 
-                // Initiate frame
-                // Render frame
-                glClearColor(clearColor.x * clearColor.w, clearColor.y * clearColor.w,
-                             clearColor.z * clearColor.w, clearColor.w);
+                // Render
+                // Clear the colorbuffer
+                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
-                // display
                 oglRender.draw();
-
-                // swap the front and back buffers
+                // Swap the screen buffers
                 glfwSwapBuffers(pGlfwWindow);
-                // poll all pending events and process
-                glfwPollEvents();
             }
 
-            //glDeleteVertexArrays(NumVAOs, VAOs);
-            glfwDestroyWindow(pGlfwWindow);
+            // Terminates GLFW, clearing any resources allocated by GLFW.
             glfwTerminate();
 
-
-
         }
-        break;
+            break;
         case RE_VULKAN: {
             VkRender vkRenderer{};
             vkRenderer.setupAdapter();
-            vkRenderer.initWindow(window, windowWidth, windowHeight);
+            vkRenderer.initWindow(info.windowTitle, info.windowWidth, info.windowHeight);
             pGlfwWindow = vkRenderer.GetGlfwWindow();
-            setupInput();
 
             if (vkRenderer.init(pGlfwWindow) == EXIT_FAILURE) {
                 throw std::runtime_error("Failed to init glfw");
@@ -95,13 +54,12 @@ RoastDisplay::start(const char *window , WindowCreateInfo &wCreateInfo) {
 
             vkRenderer.cleanup();
         }
-        break;
+            break;
 
         case RE_METAL: {
             MtlRender mtlRenderer{};
-            mtlRenderer.initWindow(window, windowWidth, windowHeight, wCreateInfo);
+            mtlRenderer.initWindow(info.windowTitle, info.windowWidth, info.windowHeight, wCreateInfo);
             pGlfwWindow = mtlRenderer.GetGlfwWindow();
-            setupInput();
 
             while (!glfwWindowShouldClose(pGlfwWindow)) {
                 glfwPollEvents();
@@ -136,10 +94,10 @@ RoastDisplay::start(const char *window , WindowCreateInfo &wCreateInfo) {
             glfwDestroyWindow(pGlfwWindow);
             glfwTerminate();
         }
-        break;
+            break;
 
         case RE_NONE:
             break;
     }
-
 }
+

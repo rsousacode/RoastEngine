@@ -1,12 +1,11 @@
 #include "RoastDisplay.h"
 #include "RDDefs.h"
 #include "RMath.h"
-#define  __ROAST_ENGINE_MACOS__
 
 int main() {
 
     SetupCreateInfo createInfo{
-            .typeCompatibility      =   { .Type = RE_OPENGL  },
+            .typeCompatibility      =   { .Type = RE_VULKAN  },
             .windowTitle        =    "Roast Engine",
             .majorVersion       =    1,
             .minorVersion       =    0,
@@ -16,7 +15,7 @@ int main() {
     };
 
 
-    WindowCreateInfo windowCreateInfo = {};
+    RDWindowCreateInfo windowCreateInfo = {};
 
     RoastDisplay display;
 

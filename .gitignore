@@ -76,3 +76,5 @@ build/*
 cmake-build-*
 RoastEngine.build
 Debug/
+
+deps/glad

@@ -1,9 +1,9 @@
-
 #ifndef ROASTENGINE_LOADSHADERS_H
 #define ROASTENGINE_LOADSHADERS_H
 
+#ifdef __APPLE__
 #include <OpenGL/gl.h>
-
+#endif
 
 #include "../../deps/glfw/src/internal.h"
 

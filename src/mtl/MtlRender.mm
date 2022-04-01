@@ -3,7 +3,7 @@
 #import "../common/RDDebug.h"
 
  void
-MtlRender::initWindow(const char *wTitle, int width, int height, WindowCreateInfo &wCreateInfo) {
+MtlRender::initWindow(const char *wTitle, int width, int height, const RDWindowCreateInfo &wCreateInfo) {
     // Initialize System
 
     glfwSetErrorCallback(RDDebug::glfwErrorCallback);
@@ -32,7 +32,7 @@ MtlRender::initWindow(const char *wTitle, int width, int height, WindowCreateInf
 }
 
 inline void
-MtlRender::SetupNSWindow(WindowCreateInfo &wCreateInfo) {
+MtlRender::SetupNSWindow(const RDWindowCreateInfo &wCreateInfo) {
     nswindow.contentView.layer = layer;
     nswindow.titlebarAppearsTransparent = wCreateInfo.transparentTitleBar;
     if(wCreateInfo.showTitleBar) {

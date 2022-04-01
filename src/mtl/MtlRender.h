@@ -26,9 +26,9 @@ struct MtlRender  {
     GLFWwindow *pGlfwWindow;
 
 
-    void initWindow(const char *wTitle, int width, int height, WindowCreateInfo &wCreateInfo);
+    void initWindow(const char *wTitle, int width, int height, const RDWindowCreateInfo &wCreateInfo);
 
-     void SetupNSWindow(WindowCreateInfo &wCreateInfo);
+     void SetupNSWindow(const RDWindowCreateInfo &wCreateInfo);
 };
 
 

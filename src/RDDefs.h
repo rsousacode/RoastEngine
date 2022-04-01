@@ -1,3 +1,6 @@
+#define BUFFER_OFFSET(a) ((void*)(a))
+
+
 typedef enum RDResult {
     RD_SUCCESS = 0,
     RD_FAILURE = 1,
@@ -25,7 +28,6 @@ typedef struct RDCreateInfo {
     int windowHeight = 610;
 } SetupCreateInfo;
 
-typedef
 struct RDWindowCreateInfo {
     // Shows or hides title bar on MacOS
     // in the future this option should apply to other OS's as well
@@ -39,5 +41,5 @@ struct RDWindowCreateInfo {
     // Alpha value of the window itself
     float alphaValue = 1;
 
-} WindowCreateInfo;
+} ;
 

@@ -9,21 +9,21 @@ set(CMAKE_CXX_STANDARD 23)
 link_directories(/usr/local/lib)
 link_libraries(/usr/local/lib)
 
+link_directories(deps/glad/src)
+
 # Source Files
 add_executable(RoastEngine
+        deps/glad/include/glad/glad.h
+        deps/glad/include/KHR/khrplatform.h
+        deps/glad/src/glad.c
+        src/ogl/LoadShaders.cpp
         src/main.cpp
         src/vk/VkRender.cpp
         src/vk/VkRender.h
         src/RoastDisplay.mm
         src/RoastDisplay.h
-        src/ogl/LoadShaders.h
-        src/ogl/LoadShaders.cpp
-
-        src/ogl/vgl.h
-
         src/ogl/OglRender.cpp
         src/ogl/OglRender.h
-
         src/mtl/MtlRender.mm
         src/mtl/MtlRender.h
         src/RDDefs.h
@@ -38,6 +38,8 @@ add_custom_target(SPV_SHADER_COMP
 
 find_program(RD_SHELL_PATH sh)
 
+# TODO windows
+
 if(RD_SHELL_PATH)
     message(STATUS "+ Unix Shell: ${RD_SHELL_PATH}")
     add_dependencies(RoastEngine SPV_SHADER_COMP)
@@ -51,7 +53,7 @@ include_directories(deps/glfw/include)
 include_directories(/usr/local/include/)
 
 # GL3W Includes
-include_directories(deps/gl3w/include)
+include_directories(deps/glad/include)
 
 # GLM mathematical functions
 add_subdirectory(deps/glm/)
@@ -67,6 +69,7 @@ target_link_libraries(RoastEngine Vulkan)
 target_link_libraries(RoastEngine glm)
 #target_link_libraries(RoastEngine imgui)
 target_link_libraries(RoastEngine glfw)
+
 target_link_libraries(RoastEngine "-framework OpenGL")
 target_link_libraries(RoastEngine "-framework QuartzCore")
 target_link_libraries(RoastEngine "-framework Metal")
