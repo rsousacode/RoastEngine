@@ -21,12 +21,14 @@ const GLuint NumVertices = 6;
 GLuint VAOs[NumVAOs];
 GLuint Buffers[NumBuffer];
 
-void OglRender::draw() {
-    static const float black[] = {1.0f, 0.0f, 1.0f, 0.0f};
-    glClearBufferfv(GL_COLOR, 0, black);
-    glBindVertexArray(VAOs[Triangles_ID]);
-    glDrawArrays(GL_TRIANGLES, 0, NumVertices);
-}
+
+static const GLfloat vertices[NumVertices][3] = {
+        {-0.9, -0.9, 0.5}, {0.85, -0.9, 0.5}, {-0.9, 0.85, 0.5},
+
+
+        {0.9, -0.85, 0.5}, {0.9, 0.9, 0.5}, {-0.85, 0.9, 0.5}
+};
+
 
 void OglRender::prepare(const RDWindowCreateInfo &pInfo, const RDCreateInfo &createInfo, GLFWkeyfun keyCb) {
     std::cout << "Starting GLFW context, OpenGL 3.3" << std::endl;
@@ -59,12 +61,27 @@ void OglRender::prepare(const RDWindowCreateInfo &pInfo, const RDCreateInfo &cre
     // Define the viewport dimensions
     glViewport(0, 0, createInfo.windowWidth, createInfo.windowHeight);
 }
-static const GLfloat vertices[NumVertices][3] = {
-        {-0.9, -0.9, 0.5}, {0.85, -0.9, 0.5}, {-0.9, 0.85, 0.5},
 
 
-        {0.9, -0.85, 0.5}, {0.9, 0.9, 0.5}, {-0.85, 0.9, 0.5}
-};
+void OglRender::draw() {
+    static const float black[] = {1.0f, 1.0f, 1.0f, 0.0f};
+    // Clears the specified buffer within the current draw framebuffer to the specified clear values
+    // The buffer argument indicates the buffer to clear
+    // Can be GL_COLOR, GL_DEPTH, GL_STENCIL
+    // When Buffer is GL_DEPTH or GL_STENCIL, drawbuffer must be zero, otherwise
+    // it is the index of the color attachment to be cleared
+    glClearBufferfv(GL_COLOR, 0, black);
+
+    // Select the vertex we want to use as vertex data
+    glBindVertexArray(VAOs[Triangles_ID]);
+
+    // Virtually sends vertex data to the GL pipeline
+    // Constructs a sequence of geometric primitives
+    // using data from the currently bound vertex array
+    // starting at first ending at the count - 1
+    // the first argument (mode)
+    glDrawArrays(GL_TRIANGLES, 0, NumVertices);
+}
 
 void OglRender::prepareNextRender() {
     // glGen*, glBind*
