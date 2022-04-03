@@ -11,7 +11,8 @@
 VkRender::VkRender() = default;
 VkRender::~VkRender() = default;
 
-// Initialization of the window.
+
+
 int
 VkRender::init(GLFWwindow *newWindow) {
     glfwWindow = newWindow;
@@ -51,8 +52,14 @@ debugCallback(
 }
 
 
+/*!
+	Populates data about the DebugUtilsMessengerCreateInfo object necessary to set some flags
+    used by the validation layers.
+	@param createInfoExt  Reference relative of the VkDebugUtilsMessengerCreateInfoEXT we want to populate.
+*/
 
-void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfoExt) {
+void
+populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfoExt) {
     createInfoExt = {
             .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
             .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
@@ -1108,12 +1115,12 @@ VkRender::subscribeCommands() {
 
 void
 VkRender::Draw() {
-    // Get next available image to draw to and set something to signal when we're finished with the image
+    // Get next available image to display to and set something to signal when we're finished with the image
     // Submit command buffer to queue for execution, making sure it waits for the image to be signalled as available before drawing
     // and signals when it has finished rendering
     // Present to screen when it has signalled finished rendering
 
-    // Wait for given fence signal from last draw before continuing
+    // Wait for given fence signal from last display before continuing
     vkWaitForFences(mainDevice.logicalDevice, 1, &drawFences[currentFrame], VK_TRUE,
                     std::numeric_limits<uint64_t>::max());
     vkResetFences(mainDevice.logicalDevice, 1, &drawFences[currentFrame]);

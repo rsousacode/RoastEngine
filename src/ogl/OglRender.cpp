@@ -24,14 +24,20 @@ GLuint Buffers[NumBuffer];
 
 static const GLfloat vertices[NumVertices][3] = {
         {-0.9, -0.9, 0.5}, {0.85, -0.9, 0.5}, {-0.9, 0.85, 0.5},
-
-
         {0.9, -0.85, 0.5}, {0.9, 0.9, 0.5}, {-0.85, 0.9, 0.5}
 };
 
 
-void OglRender::prepare(const RDWindowCreateInfo &pInfo, const RDCreateInfo &createInfo, GLFWkeyfun keyCb) {
-    std::cout << "Starting GLFW context, OpenGL 3.3" << std::endl;
+/*!
+	Called once to prepare the OPENGL Context.
+	@param pInfo  Window Create Information.
+	@param createInfo  Render Create Information.
+    @param keyCb  GLFW Input callback.
+*/
+
+void
+OglRender::prepare(const RDWindowCreateInfo &pInfo, const RDCreateInfo &createInfo, GLFWkeyfun keyCb) {
+    std::cout << "Starting GLFW context, OpenGL 4.1" << std::endl;
     // Init GLFW
     glfwInit();
     // Set all the required options for GLFW
@@ -63,14 +69,18 @@ void OglRender::prepare(const RDWindowCreateInfo &pInfo, const RDCreateInfo &cre
 }
 
 
-void OglRender::draw() {
-    static const float black[] = {1.0f, 1.0f, 1.0f, 0.0f};
-    // Clears the specified buffer within the current draw framebuffer to the specified clear values
+/*!
+	Feed pipeline with display data.
+*/
+
+void OglRender::display(Vector4 &color) {
+    static const float c[] = {color.x, color.y, color.z, color.w};
+    // Clears the specified buffer within the current display framebuffer to the specified clear values
     // The buffer argument indicates the buffer to clear
     // Can be GL_COLOR, GL_DEPTH, GL_STENCIL
     // When Buffer is GL_DEPTH or GL_STENCIL, drawbuffer must be zero, otherwise
     // it is the index of the color attachment to be cleared
-    glClearBufferfv(GL_COLOR, 0, black);
+    glClearBufferfv(GL_COLOR, 0, c);
 
     // Select the vertex we want to use as vertex data
     glBindVertexArray(VAOs[Triangles_ID]);
@@ -83,7 +93,7 @@ void OglRender::draw() {
     glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 }
 
-void OglRender::prepareNextRender() {
+void OglRender::bindShaderStep() {
     // glGen*, glBind*
     // create vaos and bind selected vaos to context
     // return NumVAOS unused names for use as vaos in VAOs array

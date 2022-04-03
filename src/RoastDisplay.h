@@ -7,16 +7,20 @@
 #import "RDDefs.h"
 #import "RMath.h"
 
+
+/*!
+	Responsible to manage essential information related to the display process.
+*/
+
 struct RoastDisplay {
 
+    GLFWwindow *pGlfwWindow{};
 
-    GLFWwindow *pGlfwWindow;
-    Vector4 clearColor = Vector4(1.0, 0.0, 0.0, 1.0);
+    Vector4 clearColor = Vector4(0.2, 0.3, 0.4, 1.0);
 
-    int frameBufferSize[2];
-    bool shouldHandleInput = true;
+    int frameBufferSize[2]{};
 
-    void Init(const RDCreateInfo& info, const RDWindowCreateInfo &wCreateInfo);
+    void Init(const RDCreateInfo& rci, const RDWindowCreateInfo &wci);
 
 };
 

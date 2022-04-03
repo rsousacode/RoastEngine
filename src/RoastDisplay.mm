@@ -3,19 +3,38 @@
 #import "vk/VkRender.h"
 #import "ogl/OglRender.h"
 
-void keyCb (GLFWwindow *window, int key, int scancode, int action, int mods) {
+/*!
+	Default key callback that GLFW provides for reading input events.
+	@param key
+	@param scancode
+    @param scancode
+    @param action
+    @param mods
+*/
+
+void
+keyCb (GLFWwindow *window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
 }
 
+/*!
+	Initializes the renderer with giving information about the setup of the window
+    and the general setup of the renderer with metadata such as version and renderer
+    type.
+	@param rci  Renderer Create info contains the data about the desires renderer configuration
+	@param wci  Window Create rci has the data necessary for the initialization
+                of the window.
+*/
+
 void
-RoastDisplay::Init(const RDCreateInfo& info, const RDWindowCreateInfo &wCreateInfo) {
-    switch (info.typeCompatibility.Type) {
+RoastDisplay::Init(const RDCreateInfo& rci, const RDWindowCreateInfo &wci) {
+    switch (rci.typeCompatibility.Type) {
         case RE_OPENGL: {
             OglRender oglRender{};
-            oglRender.prepare(wCreateInfo, info , keyCb);
-            oglRender.prepareNextRender();
+            oglRender.prepare(wci, rci , keyCb);
+            oglRender.bindShaderStep();
             pGlfwWindow = oglRender.pGlfwWindow;
             // Game loop
             while (!glfwWindowShouldClose(pGlfwWindow))
@@ -25,9 +44,7 @@ RoastDisplay::Init(const RDCreateInfo& info, const RDWindowCreateInfo &wCreateIn
 
                 // Render
                 // Clear the colorbuffer
-                glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-                oglRender.draw();
+                oglRender.display(clearColor);
                 // Swap the screen buffers
                 glfwSwapBuffers(pGlfwWindow);
             }
@@ -40,7 +57,7 @@ RoastDisplay::Init(const RDCreateInfo& info, const RDWindowCreateInfo &wCreateIn
         case RE_VULKAN: {
             VkRender vkRenderer{};
             vkRenderer.setupAdapter();
-            vkRenderer.initWindow(info.windowTitle, info.windowWidth, info.windowHeight);
+            vkRenderer.initWindow(rci.windowTitle, rci.windowWidth, rci.windowHeight);
             pGlfwWindow = vkRenderer.GetGlfwWindow();
 
             if (vkRenderer.init(pGlfwWindow) == EXIT_FAILURE) {
@@ -58,7 +75,7 @@ RoastDisplay::Init(const RDCreateInfo& info, const RDWindowCreateInfo &wCreateIn
 
         case RE_METAL: {
             MtlRender mtlRenderer{};
-            mtlRenderer.initWindow(info.windowTitle, info.windowWidth, info.windowHeight, wCreateInfo);
+            mtlRenderer.initWindow(rci.windowTitle, rci.windowWidth, rci.windowHeight, wci);
             pGlfwWindow = mtlRenderer.GetGlfwWindow();
 
             while (!glfwWindowShouldClose(pGlfwWindow)) {
