@@ -8,7 +8,6 @@
 
 struct OglRender {
 
-
     void display(Vector4 &glClearColor);
 
     void prepare(const RDWindowCreateInfo &pInfo, const RDCreateInfo &createInfo, GLFWkeyfun keyCb);

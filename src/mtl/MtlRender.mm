@@ -4,7 +4,7 @@
 #import "../common/RDDebug.h"
 #import "../common/SGlfw.h"
 
- void
+void
 MtlRender::initWindow(const char *wTitle, int width, int height, const RDWindowCreateInfo &wCreateInfo) {
     // Initialize System
 

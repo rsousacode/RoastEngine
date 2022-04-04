@@ -55,7 +55,7 @@ RoastDisplay::Init(const RDCreateInfo& rci, const RDWindowCreateInfo &wci) {
             break;
         case RE_VULKAN: {
             VkRender vkRenderer{};
-            vkRenderer.initWindow(rci.windowTitle, rci.windowWidth, rci.windowHeight);
+            vkRenderer.initWindow(rci.windowTitle, rci.windowWidth, rci.windowHeight, clearColor);
             pGlfwWindow = vkRenderer.GetGlfwWindow();
 
             if (vkRenderer.init(pGlfwWindow) == EXIT_FAILURE) {
