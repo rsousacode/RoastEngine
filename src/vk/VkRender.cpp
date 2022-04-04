@@ -4,6 +4,7 @@
 #import <stdexcept>
 #import <iostream>
 #import "vulkan/vulkan.h"
+#include "../common/SGlfw.h"
 #import <GLFW/glfw3.h>
 #import <set>
 #import <array>
@@ -968,18 +969,13 @@ VkRender::getImageView(VkImage image, VkFormat format, VkImageAspectFlags aspect
     return imageView;
 }
 
-bool
-VkRender::setupAdapter() {
-    if (glfwInit() == GLFW_FALSE) {
-        return false;
-    }
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    return true;
-}
-
 void
 VkRender::initWindow(const char *wName, int width, int height) {
+    if (glfwInit() == GLFW_FALSE) {
+        throw std::runtime_error("Unable to start GLFW in Vulkan context");
+    }
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    SGlfw::UseEngineGlfwWindowHints();
     glfwWindow = glfwCreateWindow(width, height, wName, nullptr, nullptr);
 }
 

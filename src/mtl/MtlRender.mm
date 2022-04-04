@@ -1,6 +1,8 @@
-#import <stdexcept>
 #include "MtlRender.h"
+
+#import <stdexcept>
 #import "../common/RDDebug.h"
+#import "../common/SGlfw.h"
 
  void
 MtlRender::initWindow(const char *wTitle, int width, int height, const RDWindowCreateInfo &wCreateInfo) {
@@ -13,6 +15,10 @@ MtlRender::initWindow(const char *wTitle, int width, int height, const RDWindowC
     }
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
+
+    SGlfw::UseEngineGlfwWindowHints();
+
     pGlfwWindow= glfwCreateWindow(width, height, wTitle, NULL, NULL);
 
     device = MTLCreateSystemDefaultDevice();

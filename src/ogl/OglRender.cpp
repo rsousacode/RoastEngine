@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 #include<stdexcept>
 #include "LoadShaders.h"
+#import "../common/SGlfw.h"
 
 
 const GLuint Triangles_ID = 0;
@@ -23,8 +24,9 @@ GLuint Buffers[NumBuffer];
 
 
 static const GLfloat vertices[NumVertices][3] = {
-        {-0.9, -0.9, 0.5}, {0.85, -0.9, 0.5}, {-0.9, 0.85, 0.5},
-        {0.9, -0.85, 0.5}, {0.9, 0.9, 0.5}, {-0.85, 0.9, 0.5}
+        {-0.5, 0.2, 1}, {0.2, 1, 1}, {-0.5, 1, 0.1},
+
+        {1, 1, 0.1}, {1, 1, -0.5}, {-0.5, -0.5, 1}
 };
 
 
@@ -37,14 +39,11 @@ static const GLfloat vertices[NumVertices][3] = {
 
 void
 OglRender::prepare(const RDWindowCreateInfo &pInfo, const RDCreateInfo &createInfo, GLFWkeyfun keyCb) {
-    std::cout << "Starting GLFW context, OpenGL 4.1" << std::endl;
     // Init GLFW
     glfwInit();
     // Set all the required options for GLFW
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    SGlfw::UseEngineGlfwWindowHints();
 
     // Create a GLFWwindow object that we can use for GLFW's functions
     pGlfwWindow = glfwCreateWindow( createInfo.windowWidth, createInfo.windowHeight, createInfo.windowTitle, NULL, NULL);

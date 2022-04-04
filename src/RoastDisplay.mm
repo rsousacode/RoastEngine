@@ -6,7 +6,6 @@
 /*!
 	Default key callback that GLFW provides for reading input events.
 	@param key
-	@param scancode
     @param scancode
     @param action
     @param mods
@@ -56,7 +55,6 @@ RoastDisplay::Init(const RDCreateInfo& rci, const RDWindowCreateInfo &wci) {
             break;
         case RE_VULKAN: {
             VkRender vkRenderer{};
-            vkRenderer.setupAdapter();
             vkRenderer.initWindow(rci.windowTitle, rci.windowWidth, rci.windowHeight);
             pGlfwWindow = vkRenderer.GetGlfwWindow();
 

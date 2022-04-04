@@ -19,8 +19,6 @@ public:
 
     float clearColor[4];
 
-    bool setupAdapter();
-
     void initWindow(const char *wName, int width, int height);
 
     GLFWwindow                  *glfwWindow{};
