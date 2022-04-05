@@ -2,10 +2,11 @@
 #include "RDDefs.h"
 #include "RMath.h"
 
-int main() {
+int
+main() {
 
     SetupCreateInfo createInfo{
-            .typeCompatibility      =   { .Type = RE_OPENGL  },
+            .typeCompatibility      =   { .Type = RE_METAL  },
             .windowTitle        =    "Roast Engine",
             .majorVersion       =    1,
             .minorVersion       =    0,

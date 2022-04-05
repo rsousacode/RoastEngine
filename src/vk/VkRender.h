@@ -17,6 +17,7 @@ public:
     Vector4 clearColor;
 
     int init(GLFWwindow *newWindow);
+
     void initWindow(const char *wName, int width, int height, Vector4 &color);
 
     VkRender();
@@ -24,7 +25,6 @@ public:
     ~VkRender();
 
     void cleanup();
-
 
     GLFWwindow *glfwWindow{};
 

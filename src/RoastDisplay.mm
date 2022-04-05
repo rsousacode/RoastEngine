@@ -96,6 +96,8 @@ RoastDisplay::Init(const RDCreateInfo& rci, const RDWindowCreateInfo &wci) {
                     [renderEncoder pushDebugGroup:@"Roast Metal"];
 
                     // Start frame
+
+
                     // Render frame
 
                     [renderEncoder popDebugGroup];
