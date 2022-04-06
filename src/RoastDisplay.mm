@@ -55,7 +55,7 @@ RoastDisplay::Init(const RDCreateInfo& rci, const RDWindowCreateInfo &wci) {
             break;
         case RE_VULKAN: {
             VkRender vkRenderer{};
-            vkRenderer.initWindow(rci.windowTitle, rci.windowWidth, rci.windowHeight, clearColor);
+            vkRenderer.initWindow(rci.windowTitle.c_str(), rci.windowWidth, rci.windowHeight, clearColor);
             pGlfwWindow = vkRenderer.GetGlfwWindow();
 
             if (vkRenderer.init(pGlfwWindow) == EXIT_FAILURE) {
@@ -73,7 +73,7 @@ RoastDisplay::Init(const RDCreateInfo& rci, const RDWindowCreateInfo &wci) {
 
         case RE_METAL: {
             MtlRender mtlRenderer{};
-            mtlRenderer.initWindow(rci.windowTitle, rci.windowWidth, rci.windowHeight, wci);
+            mtlRenderer.initWindow(rci.windowTitle.c_str(), rci.windowWidth, rci.windowHeight, wci);
             pGlfwWindow = mtlRenderer.GetGlfwWindow();
 
             while (!glfwWindowShouldClose(pGlfwWindow)) {

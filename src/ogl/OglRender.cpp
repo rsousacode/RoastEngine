@@ -46,7 +46,7 @@ OglRender::prepare(const RDWindowCreateInfo &pInfo, const RDCreateInfo &createIn
     SGlfw::UseEngineGlfwWindowHints();
 
     // Create a GLFWwindow object that we can use for GLFW's functions
-    pGlfwWindow = glfwCreateWindow( createInfo.windowWidth, createInfo.windowHeight, createInfo.windowTitle, NULL, NULL);
+    pGlfwWindow = glfwCreateWindow( createInfo.windowWidth, createInfo.windowHeight, createInfo.windowTitle.c_str(), NULL, NULL);
     glfwMakeContextCurrent(pGlfwWindow);
     if (pGlfwWindow == NULL)
     {

@@ -11,6 +11,8 @@ link_libraries(/usr/local/lib)
 
 link_directories(deps/glad/src)
 
+link_directories(deps/cpptoml)
+
 # Source Files
 add_executable(RoastEngine
         deps/glad/include/glad/glad.h
@@ -30,7 +32,8 @@ add_executable(RoastEngine
         src/mtl/MtlRender.h
         src/RDDefs.h
         src/common/RDDebug.h
-        src/RMath.h)
+        src/RMath.h
+        src/engine/RInit.h)
 
 
 # Engine shader compilation step
@@ -50,6 +53,9 @@ endif(RD_SHELL_PATH)
 
 # Library Includes for Vulkan and other libraries
 include_directories(deps/glfw/include)
+
+# cpptoml
+include_directories(deps/cpptoml/include)
 
 # GLFW Includes
 include_directories(/usr/local/include/)

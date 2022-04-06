@@ -1,0 +1,10 @@
+# Versioning Information
+engine = "Vulkan"
+title = "Roast Engine"
+branch = "dev"
+minor = 1
+major = 0
+
+# Window Information
+windowWidth = 1500
+windowHeight = 900

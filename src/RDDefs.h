@@ -1,4 +1,5 @@
 #define BUFFER_OFFSET(a) ((void*)(a))
+#include <string>
 
 
 typedef enum RDResult {
@@ -10,8 +11,7 @@ typedef enum RDType {
     RE_VULKAN = 0x00000001,
     RE_OPENGL = 0x00000002,
     RE_METAL = 0x00000003,
-    RE_NONE = 0x00000004,
-
+    RE_NONE = 0x00000004
 } RE_RenderEngine;
 
 typedef struct RDTypeComp {
@@ -20,10 +20,10 @@ typedef struct RDTypeComp {
 
 typedef struct RDCreateInfo {
     RDTypeCompatibility typeCompatibility{.Type = RE_VULKAN};
-    const char *windowTitle = "Roast Engine";
-    [[maybe_unused]] int majorVersion = 1;
-    [[maybe_unused]] int minorVersion = 0;
-    [[maybe_unused]] const char *branch = "rc";
+    std::string windowTitle = "Roast Engine";
+    int majorVersion = 1;
+    int minorVersion = 0;
+    std::string branch = "rc";
     int windowWidth = 1080;
     int windowHeight = 610;
 } SetupCreateInfo;

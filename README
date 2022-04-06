@@ -4,9 +4,10 @@ RoastEngine is a Project that aims to implement a multipurpose render engine
 capable of running with Vulkan, OpenGL and Metal.
 
 Dependencies:
-GLM         => https://github.com/g-truc/glm                            GLM
-GLFW        => https://www.glfw.org/                                    GLFW
-GLAD        => https://glad.dav1d.de                                    GLAD
+glm         => https://github.com/g-truc/glm                            Math helpers
+glfw        => https://www.glfw.org/                                    Window creation helper
+glad        => https://glad.dav1d.de                                    GPU Extensions
 VulkanSDK   => https://www.lunarg.com/vulkan-sdk/                       Vulkan SDK
 AppKit      => https://developer.apple.com/documentation/appkit         AppKit
 QuartzCore  => https://developer.apple.com/documentation/quartzcore     Core Animation
+cpptoml     => https://github.com/chadaustin/cpptoml                    TOML Support

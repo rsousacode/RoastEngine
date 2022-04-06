@@ -1,20 +1,12 @@
 #include "RoastDisplay.h"
 #include "RDDefs.h"
 #include "RMath.h"
+#include "engine/RInit.h"
 
 int
 main() {
 
-    SetupCreateInfo createInfo{
-            .typeCompatibility      =   { .Type = RE_VULKAN  },
-            .windowTitle        =    "Roast Engine",
-            .majorVersion       =    1,
-            .minorVersion       =    0,
-            .branch             =    "",
-            .windowWidth        =    1500,
-            .windowHeight       =    900,
-    };
-
+    SetupCreateInfo createInfo = RInit::GetEngineSetupCreateInfo();
 
     RDWindowCreateInfo windowCreateInfo = {};
 
