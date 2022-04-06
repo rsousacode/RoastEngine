@@ -38,7 +38,13 @@ add_executable(RoastEngine
 
 # Engine shader compilation step
 add_custom_target(SPV_SHADER_COMP
-        COMMAND sh src/vk/comp_rshader.sh
+        COMMAND sh scripts/comp_rshader.sh
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+
+# Version metadata gathering
+add_custom_target(V_METADATA
+        COMMAND sh scripts/version.sh
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 find_program(RD_SHELL_PATH sh)
@@ -48,6 +54,8 @@ find_program(RD_SHELL_PATH sh)
 if(RD_SHELL_PATH)
     message(STATUS "+ Unix Shell: ${RD_SHELL_PATH}")
     add_dependencies(RoastEngine SPV_SHADER_COMP)
+    add_dependencies(RoastEngine V_METADATA)
+
 endif(RD_SHELL_PATH)
 # End of Engine shader compilation step
 
