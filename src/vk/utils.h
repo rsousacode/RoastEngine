@@ -1,9 +1,14 @@
 #pragma once
 #import <cstdint>
 #import <vector>
+#import <glm/glm.hpp>
 
 const std::vector<const char *> deviceExtensions ={
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
+struct Vertex {
+    glm::vec3 pos;
 };
 
 // Indices of queues families if they exist at all

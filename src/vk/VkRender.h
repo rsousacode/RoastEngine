@@ -7,6 +7,7 @@
 #import <algorithm>
 #import "utils.h"
 #include "../RMath.h"
+#include "VkMesh.h"
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -16,11 +17,12 @@ public:
     const int MAX_FRAME_DRAWS = 2;
     Vector4 clearColor;
 
+    VkRender();
+    VkMesh firstMesh;
+
     int init(GLFWwindow *newWindow);
 
     void initWindow(const char *wName, int width, int height, Vector4 &color);
-
-    VkRender();
 
     ~VkRender();
 
@@ -174,6 +176,10 @@ private:
 
     void destroySemaphores();
 
+    void createMesh();
 };
+
+
+
 
 #endif //ROASTENGINE_VKRENDER_H

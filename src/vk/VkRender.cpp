@@ -10,8 +10,6 @@
 #import <set>
 #import <array>
 
-VkRender::VkRender() = default;
-
 VkRender::~VkRender() = default;
 
 
@@ -24,6 +22,7 @@ VkRender::init(GLFWwindow *newWindow) {
         createSurface();
         createPhysicalDevices();
         createLogicalDevice();
+        createMesh();
         createSwapchain();
         createRenderPass();
         createGraphicsPipeline();
@@ -165,6 +164,7 @@ VkRender::listHasExtension(std::vector<VkExtensionProperties> &extensions, const
 void
 VkRender::cleanup() {
     vkDeviceWaitIdle(mainDevice.logicalDevice);
+    firstMesh.destroyVertexBuffer();
     destroySemaphores();
     vkDestroyCommandPool(mainDevice.logicalDevice, graphicsCommandPool, nullptr);
     cleanFramebuffers();
@@ -730,14 +730,35 @@ void VkRender::createGraphicsPipeline() {
     // Graphics Pipeline creation info requires array of shader stage creates
     VkPipelineShaderStageCreateInfo shaderStages[] = {vertexShaderCreateInfo, fragmentShaderCreateInfo};
 
+    // How the data for a single vertex (including info such as position, color, texture coords, normals etc) as a whole
+    // Each vertex could have multiple attributes
+    VkVertexInputBindingDescription bindingDescription = {
+            .binding = 0,                                               // Binding multiple streams (defines index)
+            .stride = sizeof(Vertex),                                   // Size of the object
+            .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,               // How to move data after each vertex
+                                                                            // VK_VERTEX_INpUT-RATE_INDEX : Move to the next vertex
+                                                                            // VK_VERTEX_INPUT_RATE_INSTANCE : Move to a vertex for the next instance
+    };
 
-    // -- VERTEX INPUT (TODO: Put in vertex descriptions when resources created) --
+    std::array<VkVertexInputAttributeDescription, 1> attributeDescriptions{};
+
+    // Position attribute
+    attributeDescriptions[0] = {
+            .location = 0,                          // Samer as color attachment in location in shader
+            .binding = 0,                           // Same value as the shader binding
+            .format = VK_FORMAT_R32G32B32_SFLOAT,   // Format of data (and helps in defining size of the data)
+            .offset = offsetof(Vertex, pos)                 // Offset till reaching pos in memory
+    };
+
+
+
+    // -- VERTEX INPUT
     VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-            .vertexBindingDescriptionCount = 0,
-            .pVertexBindingDescriptions = nullptr,            // List of Vertex Binding Descriptions (data spacing/stride information)
-            .vertexAttributeDescriptionCount = 0,
-            .pVertexAttributeDescriptions = nullptr,        // List of Vertex Attribute Descriptions (data format and where to bind to/from)
+            .vertexBindingDescriptionCount = 1,
+            .pVertexBindingDescriptions = &bindingDescription,            // List of Vertex Binding Descriptions (data spacing/stride information)
+            .vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size()),
+            .pVertexAttributeDescriptions = attributeDescriptions.data(),        // List of Vertex Attribute Descriptions (data format and where to bind to/from)
     };
 
     // -- INPUT ASSEMBLY --
@@ -1099,11 +1120,15 @@ VkRender::subscribeCommands() {
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        // bin pipeline
-        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+            // bin pipeline
+            vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-        // execute pipeline
-        vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+            VkBuffer vertexBuffer[] = { firstMesh.vertexBuffer }; // Buffers to bind
+            VkDeviceSize offsets[] = { 0 };                           // Offsets into buffers being bound
+        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffer, offsets);
+
+            // execute pipeline
+            vkCmdDraw(commandBuffers[i], firstMesh.vertexCount, 1, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -1203,3 +1228,20 @@ VkRender::destroySemaphores() {
         vkDestroyFence(mainDevice.logicalDevice, drawFences[i], nullptr);
     }
 }
+
+void
+VkRender::createMesh() {
+    std::vector<Vertex> meshVertices = {
+            {{0.0, -0.5, 0.0}},
+             {{0.5, 0.5, 0.0}},
+             {{-0.5, 0.5, 0.5}}
+            };
+
+    firstMesh = VkMesh(mainDevice.physicalDevice, mainDevice.logicalDevice, &meshVertices);
+
+}
+
+VkRender::VkRender() {
+
+}
+

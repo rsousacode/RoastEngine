@@ -20,6 +20,8 @@ add_executable(RoastEngine
         src/main.cpp
         src/vk/VkRender.cpp
         src/vk/VkRender.h
+        src/vk/VkMesh.h
+        src/vk/VkMesh.cpp
         src/RoastDisplay.mm
         src/RoastDisplay.h
         src/ogl/OglRender.cpp
