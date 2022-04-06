@@ -1002,14 +1002,18 @@ VkRender::getImageView(VkImage image, VkFormat format, VkImageAspectFlags aspect
 }
 
 void
-VkRender::initWindow(const char *wName, int width, int height, Vector4 &color) {
+VkRender::initWindow(const char *wName, int width, int height, Vector4 &color, GLFWkeyfun keyCb) {
     clearColor = color;
     if (glfwInit() == GLFW_FALSE) {
         throw std::runtime_error("Unable to start GLFW in Vulkan context");
     }
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
     SGlfw::UseEngineGlfwWindowHints();
     glfwWindow = glfwCreateWindow(width, height, wName, nullptr, nullptr);
+
+    // Set the required callback functions
+    glfwSetKeyCallback(glfwWindow, keyCb);
 }
 
 GLFWwindow *

@@ -22,7 +22,7 @@ public:
 
     int init(GLFWwindow *newWindow);
 
-    void initWindow(const char *wName, int width, int height, Vector4 &color);
+    void initWindow(const char *wName, int width, int height, Vector4 &color, GLFWkeyfun keyCb);
 
     ~VkRender();
 

@@ -1,7 +1,7 @@
 # Versioning Information
 engine = "Vulkan"
 title = "Roast Engine"
-branch = "dev"
+branch = "master"
 minor = 1
 major = 0
 
