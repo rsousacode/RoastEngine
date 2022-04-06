@@ -38,7 +38,7 @@ add_executable(RoastEngine
 
 # Engine shader compilation step
 add_custom_target(SPV_SHADER_COMP
-        COMMAND sh scripts/comp_rshader.sh
+        COMMAND sh scripts/shaders_vk.sh
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 
