@@ -50,6 +50,7 @@ namespace RInit {
 
 
         auto init = cpptoml::parse_file("../src/settings.toml");
+        auto version = cpptoml::parse_file("../.version.toml");
 
         // Versioning
         // Engine Title
@@ -65,8 +66,12 @@ namespace RInit {
         if (minorVersion) createInfo.minorVersion = minorVersion.value_or(createInfo.minorVersion);
 
         // Branch
-        auto branch = init->get_as<std::string>("branch");
+        auto branch = version->get_as<std::string>("branch");
         if (branch) createInfo.branch = branch->data();
+
+        // Commit Hash
+        auto hash = version->get_as<std::string>("hash");
+        if (hash) createInfo.commit = branch->data();
 
         // Window Information
         // width

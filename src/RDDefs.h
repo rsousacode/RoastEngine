@@ -23,7 +23,8 @@ typedef struct RDCreateInfo {
     std::string windowTitle = "Roast Engine";
     int majorVersion = 1;
     int minorVersion = 0;
-    std::string branch = "rc";
+    std::string branch = "";
+    std::string commit = "";
     int windowWidth = 1080;
     int windowHeight = 610;
 } SetupCreateInfo;

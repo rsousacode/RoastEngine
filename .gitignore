@@ -77,4 +77,4 @@ cmake-build-*
 RoastEngine.build
 Debug/
 deps/glad
-version.toml
+.version.toml
