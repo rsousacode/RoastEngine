@@ -8,7 +8,8 @@ const std::vector<const char *> deviceExtensions ={
 };
 
 struct Vertex {
-    glm::vec3 pos;
+    glm::vec3 pos; // vertex position (x,y,z);
+    glm::vec3 col; // Vertex color (rgb)
 };
 
 // Indices of queues families if they exist at all

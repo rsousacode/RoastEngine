@@ -99,7 +99,7 @@ VkRender::createInstance() {
 
         populateDebugMessengerCreateInfo(debugCreateInfo);
         createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *) &debugCreateInfo;
-        if (CreateDebugUtilsMessengerEXT(instance, &debugCreateInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+        if (CreateDebugUtilsMessengerEXT(instance, &debugCreateInfo, VK_ALLOCATOR, &debugMessenger) != VK_SUCCESS) {
             throw std::runtime_error("failed to set up debug messenger!");
         }
     }
@@ -118,7 +118,7 @@ VkRender::createInstance() {
 
 
     // Create instance
-    VkResult r = vkCreateInstance(&createInfo, nullptr, &instance);
+    VkResult r = vkCreateInstance(&createInfo, VK_ALLOCATOR, &instance);
 
     if (r != VK_SUCCESS) {
         throw std::runtime_error("Error creating a Vk instance.");
@@ -166,17 +166,17 @@ VkRender::cleanup() {
     vkDeviceWaitIdle(mainDevice.logicalDevice);
     firstMesh.destroyVertexBuffer();
     destroySemaphores();
-    vkDestroyCommandPool(mainDevice.logicalDevice, graphicsCommandPool, nullptr);
+    vkDestroyCommandPool(mainDevice.logicalDevice, graphicsCommandPool, VK_ALLOCATOR);
     cleanFramebuffers();
-    vkDestroyPipeline(mainDevice.logicalDevice, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(mainDevice.logicalDevice, pipelineLayout, nullptr);
-    vkDestroyRenderPass(mainDevice.logicalDevice, renderPass, nullptr);
+    vkDestroyPipeline(mainDevice.logicalDevice, graphicsPipeline, VK_ALLOCATOR);
+    vkDestroyPipelineLayout(mainDevice.logicalDevice, pipelineLayout, VK_ALLOCATOR);
+    vkDestroyRenderPass(mainDevice.logicalDevice, renderPass, VK_ALLOCATOR);
     cleanupImages();
-    vkDestroySwapchainKHR(mainDevice.logicalDevice, swapchainKhr, nullptr);
-    vkDestroySurfaceKHR(instance, surface, nullptr);
-    vkDestroyDevice(mainDevice.logicalDevice, nullptr);
-    if (enableValidationLayers) DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-    vkDestroyInstance(instance, nullptr);
+    vkDestroySwapchainKHR(mainDevice.logicalDevice, swapchainKhr, VK_ALLOCATOR);
+    vkDestroySurfaceKHR(instance, surface, VK_ALLOCATOR);
+    vkDestroyDevice(mainDevice.logicalDevice, VK_ALLOCATOR);
+    if (enableValidationLayers) DestroyDebugUtilsMessengerEXT(instance, debugMessenger, VK_ALLOCATOR);
+    vkDestroyInstance(instance, VK_ALLOCATOR);
     glfwDestroyWindow(glfwWindow);
     glfwTerminate();
 
@@ -185,7 +185,7 @@ VkRender::cleanup() {
 void
 VkRender::cleanupImages() {
     for (auto image: swapChainImages) {
-        vkDestroyImageView(mainDevice.logicalDevice, image.imageView, nullptr);
+        vkDestroyImageView(mainDevice.logicalDevice, image.imageView, VK_ALLOCATOR);
     }
 }
 
@@ -340,7 +340,7 @@ VkRender::createLogicalDevice() {
     // Create the logical device for the given physical device
     VkResult result = vkCreateDevice(mainDevice.physicalDevice,
                                      &deviceCreateInfo,
-                                     nullptr,
+                                     VK_ALLOCATOR,
                                      &mainDevice.logicalDevice);
 
     if (result != VK_SUCCESS) {
@@ -399,7 +399,7 @@ VkRender::setupDebugMessenger() {
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
     populateDebugMessengerCreateInfo(createInfo);
 
-    if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+    if (CreateDebugUtilsMessengerEXT(instance, &createInfo, VK_ALLOCATOR, &debugMessenger) != VK_SUCCESS) {
         throw std::runtime_error("failed to set up debug messenger!");
     }
 }
@@ -429,7 +429,7 @@ VkRender::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMesseng
 void
 VkRender::createSurface() {
 
-    auto result = glfwCreateWindowSurface(instance, glfwWindow, nullptr, &surface);
+    auto result = glfwCreateWindowSurface(instance, glfwWindow, VK_ALLOCATOR, &surface);
 
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create a surface");
@@ -565,7 +565,7 @@ VkRender::createSwapchain() {
         swapchainCreateInfo.pQueueFamilyIndices = queueFamilyIndexes;       // Array of queues to share between
     }
 
-    auto result = vkCreateSwapchainKHR(mainDevice.logicalDevice, &swapchainCreateInfo, nullptr, &swapchainKhr);
+    auto result = vkCreateSwapchainKHR(mainDevice.logicalDevice, &swapchainCreateInfo, VK_ALLOCATOR, &swapchainKhr);
 
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create a Swapchain!");
@@ -656,7 +656,7 @@ void VkRender::createRenderPass() {
     renderPassCreateInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
     renderPassCreateInfo.pDependencies = subpassDependencies.data();
 
-    VkResult result = vkCreateRenderPass(mainDevice.logicalDevice, &renderPassCreateInfo, nullptr, &renderPass);
+    VkResult result = vkCreateRenderPass(mainDevice.logicalDevice, &renderPassCreateInfo, VK_ALLOCATOR, &renderPass);
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create a Render Pass!");
     }
@@ -691,7 +691,7 @@ VkShaderModule VkRender::createShaderModule(const std::vector<char> &code) {
     shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());        // Pointer to code (of uint32_t pointer type)
 
     VkShaderModule shaderModule;
-    VkResult result = vkCreateShaderModule(mainDevice.logicalDevice, &shaderModuleCreateInfo, nullptr, &shaderModule);
+    VkResult result = vkCreateShaderModule(mainDevice.logicalDevice, &shaderModuleCreateInfo, VK_ALLOCATOR, &shaderModule);
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create a shader module!");
     }
@@ -740,7 +740,7 @@ void VkRender::createGraphicsPipeline() {
                                                                             // VK_VERTEX_INPUT_RATE_INSTANCE : Move to a vertex for the next instance
     };
 
-    std::array<VkVertexInputAttributeDescription, 1> attributeDescriptions{};
+    std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
 
     // Position attribute
     attributeDescriptions[0] = {
@@ -748,6 +748,14 @@ void VkRender::createGraphicsPipeline() {
             .binding = 0,                           // Same value as the shader binding
             .format = VK_FORMAT_R32G32B32_SFLOAT,   // Format of data (and helps in defining size of the data)
             .offset = offsetof(Vertex, pos)                 // Offset till reaching pos in memory
+    };
+
+    // Color attribute
+    attributeDescriptions[1] = {
+            .location = 1,                          // Samer as color attachment in location in shader
+            .binding = 0,                           // Same value as the shader binding
+            .format = VK_FORMAT_R32G32B32_SFLOAT,   // Format of data (and helps in defining size of the data)
+            .offset = offsetof(Vertex, col)                 // Offset till reaching pos in memory
     };
 
 
@@ -863,7 +871,7 @@ void VkRender::createGraphicsPipeline() {
     };
 
     // Create Pipeline Layout
-    VkResult result = vkCreatePipelineLayout(mainDevice.logicalDevice, &pipelineLayoutCreateInfo, nullptr,
+    VkResult result = vkCreatePipelineLayout(mainDevice.logicalDevice, &pipelineLayoutCreateInfo, VK_ALLOCATOR,
                                              &pipelineLayout);
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create Pipeline Layout!");
@@ -895,15 +903,15 @@ void VkRender::createGraphicsPipeline() {
     };
 
     // Create Graphics Pipeline
-    result = vkCreateGraphicsPipelines(mainDevice.logicalDevice, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr,
+    result = vkCreateGraphicsPipelines(mainDevice.logicalDevice, VK_NULL_HANDLE, 1, &pipelineCreateInfo, VK_ALLOCATOR,
                                        &graphicsPipeline);
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create a Graphics Pipeline!");
     }
 
     // Destroy Shader Modules, no longer needed after Pipeline created
-    vkDestroyShaderModule(mainDevice.logicalDevice, fragmentShaderModule, nullptr);
-    vkDestroyShaderModule(mainDevice.logicalDevice, vertexShaderModule, nullptr);
+    vkDestroyShaderModule(mainDevice.logicalDevice, fragmentShaderModule, VK_ALLOCATOR);
+    vkDestroyShaderModule(mainDevice.logicalDevice, vertexShaderModule, VK_ALLOCATOR);
 }
 
 // Chooses surface Format. Defaults:
@@ -986,7 +994,7 @@ VkRender::getImageView(VkImage image, VkFormat format, VkImageAspectFlags aspect
     };
 
     VkImageView imageView;
-    VkResult result = vkCreateImageView(mainDevice.logicalDevice, &viewCreateInfo, nullptr, &imageView);
+    VkResult result = vkCreateImageView(mainDevice.logicalDevice, &viewCreateInfo, VK_ALLOCATOR, &imageView);
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create an Image view!");
     }
@@ -1029,7 +1037,7 @@ VkRender::createFramebuffers() {
                 .layers = 1
         };
 
-        VkResult result = vkCreateFramebuffer(mainDevice.logicalDevice, &framebufferCreateInfo, nullptr,
+        VkResult result = vkCreateFramebuffer(mainDevice.logicalDevice, &framebufferCreateInfo, VK_ALLOCATOR,
                                               &framebuffers[i]);
 
         if (result != VK_SUCCESS) {
@@ -1042,7 +1050,7 @@ VkRender::createFramebuffers() {
 void
 VkRender::cleanFramebuffers() {
     for (auto framebuffer: framebuffers) {
-        vkDestroyFramebuffer(mainDevice.logicalDevice, framebuffer, nullptr);
+        vkDestroyFramebuffer(mainDevice.logicalDevice, framebuffer, VK_ALLOCATOR);
     }
 }
 
@@ -1053,7 +1061,7 @@ VkRender::createCommandPool() {
             .queueFamilyIndex = indices.graphicsFamilyIndex,
     };
 
-    VkResult result = vkCreateCommandPool(mainDevice.logicalDevice, &poolCreateInfo, nullptr, &graphicsCommandPool);
+    VkResult result = vkCreateCommandPool(mainDevice.logicalDevice, &poolCreateInfo, VK_ALLOCATOR, &graphicsCommandPool);
 
     if (result != VK_SUCCESS) {
         throw std::runtime_error("Failed to create command pool");
@@ -1210,10 +1218,10 @@ VkRender::createSync() {
     };
 
     for (size_t i = 0; i < MAX_FRAME_DRAWS; i++) {
-        if (vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &imageAvailable[i]) != VK_SUCCESS
+        if (vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, VK_ALLOCATOR, &imageAvailable[i]) != VK_SUCCESS
             ||
-            vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, nullptr, &renderFinish[i]) != VK_SUCCESS
-            || vkCreateFence(mainDevice.logicalDevice, &fenceCreateInfo, nullptr, &drawFences[i]) != VK_SUCCESS) {
+            vkCreateSemaphore(mainDevice.logicalDevice, &semaphoreCreateInfo, VK_ALLOCATOR, &renderFinish[i]) != VK_SUCCESS
+            || vkCreateFence(mainDevice.logicalDevice, &fenceCreateInfo, VK_ALLOCATOR, &drawFences[i]) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create semaphore and/or fence");
         }
     }
@@ -1223,18 +1231,22 @@ VkRender::createSync() {
 void
 VkRender::destroySemaphores() {
     for (size_t i = 0; i < MAX_FRAME_DRAWS; i++) {
-        vkDestroySemaphore(mainDevice.logicalDevice, renderFinish[i], nullptr);
-        vkDestroySemaphore(mainDevice.logicalDevice, imageAvailable[i], nullptr);
-        vkDestroyFence(mainDevice.logicalDevice, drawFences[i], nullptr);
+        vkDestroySemaphore(mainDevice.logicalDevice, renderFinish[i], VK_ALLOCATOR);
+        vkDestroySemaphore(mainDevice.logicalDevice, imageAvailable[i], VK_ALLOCATOR);
+        vkDestroyFence(mainDevice.logicalDevice, drawFences[i], VK_ALLOCATOR);
     }
 }
 
 void
 VkRender::createMesh() {
     std::vector<Vertex> meshVertices = {
-            {{0.0, -0.5, 0.0}},
-             {{0.5, 0.5, 0.0}},
-             {{-0.5, 0.5, 0.5}}
+            {{0.0, -0.5, 0.0}, {1.0, 0.0 , 0.0}} ,
+             {{0.5, 0.5, 0.0}, {0.0, 1.0 , 0.0}},
+             {{-0.5, 0.5, 0.5}, {0.0, 0.0 , 1.0}},
+
+            {{0.5, -0.5, 0.0}, {0.0, 0.0 , 1.0}},
+             {{0.5, 0.5, 0.0}, {1.0, 1.0 , 0.0}},
+             {{0.5, -0.5, 0.0}, {1.0, 0.0 , 0.0}},
             };
 
     firstMesh = VkMesh(mainDevice.physicalDevice, mainDevice.logicalDevice, &meshVertices);
